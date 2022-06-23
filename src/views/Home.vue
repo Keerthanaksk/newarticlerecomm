@@ -1,6 +1,9 @@
 <template>
 
-  <div class="container p-5">
+  <div 
+    class="container p-5"
+    
+    >
     <div class="row">
       <div class="col-3">
         <Topics @select-topic="selectTopic"/>
@@ -43,5 +46,5 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+  
 </style>

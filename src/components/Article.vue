@@ -1,10 +1,10 @@
 <template>
     
-    <div class="card">
+    <div class="card shadow">
         <img :src="randomPic" class="card-img-top" alt="...">
         <div class="card-body">
             <h5 class="card-title">{{this.title}}</h5>
-            <a :href="this.link" target="_blank" class="small">{{this.link}}</a>
+            <a :href="this.link" target="_blank" class="small text-muted">Go to the main article</a>
             <p class="card-text">{{this.summary}}</p>
 
             <div class="d-flex justify-content-end">

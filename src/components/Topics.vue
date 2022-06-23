@@ -1,7 +1,7 @@
 <template>
   <div class="d-grid gap-2">
     
-    <button class="btn btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#topics" aria-expanded="false" aria-controls="topics">
+    <button class="btn btn-warning mt-4 shadow" type="button" data-bs-toggle="collapse" data-bs-target="#topics" aria-expanded="false" aria-controls="topics">
       Topics
     </button>
 

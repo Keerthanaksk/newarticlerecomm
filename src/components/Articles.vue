@@ -1,9 +1,9 @@
 <template>
     
-    <h1 v-if="this.topic" class="m-3">{{this.topic}}</h1>
 
     <div class="container">
-        <div class="d-grid gap-5" v-if="this.topic">
+    <h1 v-if="this.topic" class="display-5 m-3">{{this.topic}}</h1>
+        <div class="d-grid gap-5 articles p-3 pb-5" v-if="this.topic">
             <Article
                 v-for="(article, key) in filteredArticles"
                 :key="key"
@@ -175,8 +175,8 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
     
-    .container {
-        max-height: 80vh;
+    .articles {
+        max-height: 70vh;
         overflow-y: scroll;
     }
 
