@@ -6,7 +6,7 @@
         <Topics @select-topic="selectTopic"/>
       </div>
       <div class="col-9">
-        <Articles/>
+        <Articles :topic="this.topic" />
       </div>
     </div>
   </div>
@@ -21,20 +21,20 @@
   export default {
     name: 'Home',
 
+    components: {
+      Articles,
+      Topics
+    },
+    
     methods: {
       async selectTopic(topic) {
         this.topic = topic
       }
     },
 
-    components: {
-      Articles,
-      Topics
-    },
-
     data() {
       return {
-        topic: false
+        topic: ""
       }
     }
   }

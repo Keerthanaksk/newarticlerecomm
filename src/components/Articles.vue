@@ -1,6 +1,19 @@
 <template>
+    
+    <h1 v-if="this.topic" class="m-3">{{this.topic}}</h1>
+
     <div class="container">
-        <Article/>
+        <div class="d-grid gap-5" v-if="this.topic">
+            <Article
+                v-for="(article, key) in filteredArticles"
+                :key="key"
+                :link="article.link"
+                :title="article.title"
+                :summary="article.summary"
+                :clicked="article.clicked"
+                :liked="article.liked"
+            />
+        </div>
         
     </div>
 
@@ -11,11 +24,26 @@
     import Article from './Article.vue'
 
     export default {
-        components: { Article },
         name: 'Articles',
+        
+        props: {
+            topic: String
+        },
+
+        components: { Article },
+
+        computed: {
+            filteredArticles() {
+                const asArray = this.articles.filter(article => article.topic == this.topic)
+                
+                return asArray
+            }
+        },
+        
         data() {
             return {
-                recommendations: [
+
+                articles: [
                     {
                         link: `https://www.wbcsd.org/Overview/News-Insights/WBCSD-insights/Solving-human-and-societal-challenges-the-real-drivers-behind-innovation`,
                         topic: 'Machine Learning and AI Ethics',
