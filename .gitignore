@@ -2,6 +2,11 @@
 node_modules
 /dist
 
+# etc
+todo.txt
+
+# poetry
+pyproject.toml
 
 # local env files
 .env.local
