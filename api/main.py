@@ -9,6 +9,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:8080",
+    "https://nice-tree-0f2a4be10.1.azurestaticapps.net"
 ]
 
 app.add_middleware(
