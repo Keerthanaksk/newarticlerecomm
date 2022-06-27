@@ -2,7 +2,8 @@ from typing import Optional
 from fastapi import FastAPI
 import motor.motor_asyncio
 from bson import ObjectId
-from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.cors import CORSMiddleware
+# from fastapi.middleware.cors import CORSMiddleware
 
 # app obj
 app = FastAPI()
