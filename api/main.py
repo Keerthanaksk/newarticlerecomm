@@ -19,8 +19,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# connect to mongodb
-client = motor.motor_asyncio.AsyncIOMotorClient('localhost', 27017)
+# connect to azure mongodb
+url = 'mongodb://ralf-mongodb:rlTDq9VZznIYUMPauBYhAGKDbKWADg6rXlFKoOb8r3i1SNPY8XsD2b2Aad2DzRqlWND2LXTvGwf7up7JFM6Czw==@ralf-mongodb.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&replicaSet=globaldb&maxIdleTimeMS=120000&appName=@ralf-mongodb@'
+
+client = motor.motor_asyncio.AsyncIOMotorClient(url)
+
 db = client.unionbank
 coll = db.articles
 

@@ -2,7 +2,7 @@
   <div class="container p-5">
     <div class="row">
       <div class="col">
-        <h1 class="display-2 text-center my-5">INewsletter</h1>
+        <h1 class="display-2 text-center my-5 fw-bolder">INewsletter</h1>
       </div>
     </div>
     <div class="row">

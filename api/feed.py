@@ -38,8 +38,12 @@ def transform_data(path):
 
 data = transform_data('recommendations.xlsx')
 
+# connect to azure
+url = 'mongodb://ralf-mongodb:rlTDq9VZznIYUMPauBYhAGKDbKWADg6rXlFKoOb8r3i1SNPY8XsD2b2Aad2DzRqlWND2LXTvGwf7up7JFM6Czw==@ralf-mongodb.mongo.cosmos.azure.com:10255/?ssl=true&retrywrites=false&replicaSet=globaldb&maxIdleTimeMS=120000&appName=@ralf-mongodb@'
+
+client = MongoClient(url)
+
 # obtain article collection
-client = MongoClient('localhost', 27017)
 db = client.unionbank
 articles = db.articles
 

@@ -14,4 +14,10 @@ export default {
 </script>
 
 <style>
+ body {
+    background-image: url('./assets/bg.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+  }
 </style>

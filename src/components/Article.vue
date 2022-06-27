@@ -1,6 +1,6 @@
 <template>
     
-    <div class="card shadow">
+    <div class="card shadow border-0">
         <img :src="randomPic" class="card-img-top" alt="...">
         <div class="card-body">
             <h5 class="card-title">{{this.title}}</h5>

@@ -3,8 +3,8 @@
 
     <div class="container">
     
-        <h1 v-if="this.topic" class="m-3">{{this.topic}}</h1>
-        <h2 v-else class="m-3">Welcome, UnionBanker!</h2>
+        <h1 v-if="this.topic" class="m-3 display-6">{{this.topic}}</h1>
+        <h1 v-else class="m-3 display-6">Welcome, UnionBanker!</h1>
         
         <div class="d-grid gap-5 articles p-3 pb-5" v-if="this.topic">
             <Article
