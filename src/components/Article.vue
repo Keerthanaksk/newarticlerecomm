@@ -53,11 +53,11 @@
         methods: {
             linkClick() {
                 axios
-                .patch(`https://articles-recommender.azurewebsites.net/api/clicks/${this.id}`)
+                .patch(`http://articles-recommender.azurewebsites.net/api/clicks/${this.id}`)
             },
             love() {
                 axios
-                .patch(`https://articles-recommender.azurewebsites.net/api/loves/${this.id}`)
+                .patch(`http://articles-recommender.azurewebsites.net/api/loves/${this.id}`)
                 .then(response => this.loveCount = response['data']['loves'])
             }
         },
