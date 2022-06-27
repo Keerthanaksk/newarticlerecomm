@@ -38,7 +38,7 @@
         watch: {
             topic(newTopic) {
                 axios
-                .get('http://localhost:8000/api/', {
+                .get('https://articles-recommender.azurewebsites.net/api/', {
                     params: {
                         topic: newTopic
                     }
