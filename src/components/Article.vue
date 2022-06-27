@@ -4,18 +4,13 @@
         <img :src="randomPic" class="card-img-top" alt="...">
         <div class="card-body">
             <h5 class="card-title">{{this.title}}</h5>
-            <a :href="this.link" target="_blank" class="small text-muted">Go to the main article</a>
+            <a :href="this.link" target="_blank" class="small text-muted" @click="linkClick">Go to the main article</a>
             <p class="card-text">{{this.summary}}</p>
 
             <div class="d-flex justify-content-end">
                 <div class="d-flex flex-column align-items-center">
-                    <i class="bi bi-hand-thumbs-up-fill text-primary" @click="like"></i>
-                    <span>{{this.likeCounter}}</span>
-                </div>
-
-                <div class="d-flex flex-column align-items-center ms-4">
                     <i class="bi bi-heart-fill text-danger" @click="love"></i>
-                    <span>{{this.loveCounter}}</span>
+                    <span>{{this.loveCount}}</span>
                 </div>
             </div>
             
@@ -26,41 +21,47 @@
 </template>
 
 <script>
+    import axios from 'axios'
 
-export default {
-    name: 'Article',
-
-    props: {
-        title: String,
-        link: String,
-        summary: String,
-        clicked: Number,
-        liked: Number
-    },
-
-    computed: {
-        randomPic() {
-            return `https://picsum.photos/seed/` + Math.floor(Math.random() * 100) + `/600/400`
-        }
-    },
-
-    methods: {
-        like() {
-            this.likeCounter++
+    export default {
+        name: 'Article',
+        
+        data() {
+            return {
+                loveCount: 0
+            }
         },
 
-        love() {
-            this.loveCounter++
-        }
-    },
+        props: {
+            id: String,
+            title: String,
+            link: String,
+            summary: String,
+            loves: Number
+        },
 
-    data() {
-        return {
-            likeCounter: this.liked,
-            loveCounter: this.clicked
-        }
+        created() {
+            this.loveCount = this.loves
+        },
+
+        computed: {
+            randomPic() {
+                return `https://picsum.photos/seed/` + Math.floor(Math.random() * 100) + `/600/400`
+            }
+        },
+
+        methods: {
+            linkClick() {
+                axios
+                .patch(`http://localhost:8000/api/clicks/${this.id}`)
+            },
+            love() {
+                axios
+                .patch(`http://localhost:8000/api/loves/${this.id}`)
+                .then(response => this.loveCount = response['data']['loves'])
+            }
+        },
     }
-}
 
 </script>
 

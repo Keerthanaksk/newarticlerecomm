@@ -1,9 +1,13 @@
 .DS_Store
 node_modules
 /dist
+__pycache__
 
 # etc
 todo.txt
+todo.md
+todo_backend.md
+todo_frontend.md
 
 # poetry
 pyproject.toml

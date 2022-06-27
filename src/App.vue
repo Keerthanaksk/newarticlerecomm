@@ -14,11 +14,4 @@ export default {
 </script>
 
 <style>
-  body {
-    /* background-color: ; */
-    /* background-image: url('./assets/ub_wallpaper.png');
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: center; */
-  }
 </style>

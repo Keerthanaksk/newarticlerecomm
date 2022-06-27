@@ -11,17 +11,25 @@ def transform_data(path):
 
     # rename cols
     df = df.rename(columns={'Clicked (Yes/No)':'clicked','Liked (Yes/No)':'liked', 'Comments':'comments'})
-
+    
     # drop null
     df.drop(["comments"], axis=1, inplace=True)
 
-    # convert cliked to 1 or 0
-    df['clicked'].loc[df['clicked'] == 'Yes'] = 1
-    df['clicked'].loc[df['clicked'] == 'No'] = 0
+    # remove white space
+    df['topic'] = df['topic'].str.strip()
+
+    # convert cliked to boolean
+    df['clicked'].loc[df['clicked'] == 'Yes'] = True
+    df['clicked'].loc[df['clicked'] == 'No'] = False
+
+    # convert liked to boolean
+    df['liked'] = df['liked'].astype(bool)
 
     # add clicks and loves cols
     df['clicks'] = 0
     df['loves'] = 0
+
+    print(df.columns)
 
     # convert to key-val records
     data = df.to_dict(orient='records')

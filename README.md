@@ -3,6 +3,7 @@
 ## Project setup
 ```
 npm install
+poetry install
 ```
 
 ### Compiles and hot-reloads for development

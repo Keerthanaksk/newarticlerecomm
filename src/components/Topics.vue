@@ -1,6 +1,6 @@
 <template>
   <div class="d-grid gap-2">
-    
+  
     <button class="btn btn-warning mt-4 shadow" type="button" data-bs-toggle="collapse" data-bs-target="#topics" aria-expanded="false" aria-controls="topics">
       Topics
     </button>
@@ -9,9 +9,10 @@
       <ul class="list-group">
         <li 
           class="list-group-item" 
-          v-for="(topic, key, index) in topics"
+          v-for="(topic, index) in topics"
           :key="index"
-          @click="selectTopic(topic)"
+          @click="selectTopic(topic); activeTopic(index)"
+          :class="{ active : this.activeIndex == index }"
           >
           {{topic}}
         </li>
@@ -30,12 +31,21 @@
       methods: {
         async selectTopic(topic) {
           this.$emit('selectTopic', topic)
+        },
+
+        async activeTopic(index) {
+          this.activeIndex = index
         }
       },
 
+
+
       data() {
         return {
-          topics: ['Machine Learning and AI Ethics', 'Finance and Business', 'Power and Energy', 'Blockchain', 'Space News Research']
+          topics: [
+            'Machine Learning and AI Ethics', 'Finance and Business', 'Power and Energy', 'Blockchain', 'Space News Research'
+            ],
+          activeIndex: null
         }
       }
   }
