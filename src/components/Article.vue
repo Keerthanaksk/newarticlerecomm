@@ -1,19 +1,20 @@
 <template>
     
     <div class="card shadow border-0">
-        <img :src="randomPic" class="card-img-top" alt="...">
+        <!-- <img :src="randomPic" class="card-img-top"> -->
+            <h5 class="card-header">{{this.title}}</h5>
         <div class="card-body">
-            <h5 class="card-title">{{this.title}}</h5>
-            <a :href="this.link" target="_blank" class="small text-muted" @click="linkClick">Go to the main article</a>
-            <p class="card-text">{{this.summary}}</p>
-
-            <div class="d-flex justify-content-end">
-                <div class="d-flex flex-column align-items-center">
+            <div class="d-flex">
+                
+                <div class="d-flex flex-column align-items-center align-self-center">
                     <i class="bi bi-heart-fill text-danger" @click="love"></i>
                     <span>{{this.loveCount}}</span>
                 </div>
+                <div class="ms-4">
+                    <p class="card-text">{{this.summary}}</p>
+                    <a :href="this.link" target="_blank" class="small text-muted align-self-end" @click="linkClick">Read more</a>
+                </div>
             </div>
-            
                     
         </div>
     </div>
@@ -21,6 +22,12 @@
 </template>
 
 <script>
+// <div class="d-flex justify-content-end">
+//                 <div class="d-flex flex-column align-items-center">
+//                     <i class="bi bi-heart-fill text-danger" @click="love"></i>
+//                     <span>{{this.loveCount}}</span>
+//                 </div>
+//             </div>
     import axios from 'axios'
 
     export default {
@@ -28,7 +35,8 @@
         
         data() {
             return {
-                loveCount: 0
+                loveCount: 0,
+                test: ''
             }
         },
 
@@ -42,6 +50,7 @@
 
         created() {
             this.loveCount = this.loves
+            
         },
 
         computed: {
@@ -51,11 +60,11 @@
         },
 
         methods: {
-            linkClick() {
+            async linkClick() {
                 axios
                 .patch(`https://articles-recommender.azurewebsites.net/api/clicks/${this.id}`)
             },
-            love() {
+            async love() {
                 axios
                 .patch(`https://articles-recommender.azurewebsites.net/api/loves/${this.id}`)
                 .then(response => this.loveCount = response['data']['loves'])
