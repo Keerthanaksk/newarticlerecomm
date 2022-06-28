@@ -18,7 +18,7 @@
               </p>
 
               <p>
-                Below the articles, you can press the <i class="bi bi-heart-fill text-danger"></i> button to express interest.
+                Beside the articles, you can press the <i class="bi bi-heart-fill text-danger"></i> button to express interest.
               </p>
 
             </div>
