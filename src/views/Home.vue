@@ -2,7 +2,7 @@
   <div class="container p-5">
     <div class="row">
       <div class="col">
-        <h1 class="display-2 text-center my-5 fw-bolder">INewsletter</h1>
+        <h1 class="display-2 text-center my-5 fw-bolder">Intelligent Newsletter</h1>
       </div>
     </div>
     <div class="row">
@@ -11,14 +11,14 @@
           <Topics @select-topic="selectTopic"/>
           <div class="card text-white bg-secondary mt-5">
             <div class="card-body shadow">
-              <p>Welcome to UnionBank's INewsletter.</p>
+              <p>Welcome to UnionBank and Aboitiz newsletter powered by AI.</p>
               
               <p>
                 Press the <b>Topics</b> button to select the topics you want to read.
               </p>
 
               <p>
-                Beside the articles, you can press the <i class="bi bi-heart-fill text-danger"></i> button to express interest.
+                Did you like the article recommended? Do press the <i class="bi bi-heart-fill text-danger"></i> to let us know.
               </p>
 
             </div>
