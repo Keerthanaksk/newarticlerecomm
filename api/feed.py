@@ -7,7 +7,7 @@ def transform_data(path):
         Clean, modify, add columns in recos data
     '''
 
-    df = pd.read_excel(path)
+    df = pd.read_excel(path)    
 
     # rename cols
     df = df.rename(columns={'Clicked (Yes/No)':'clicked','Liked (Yes/No)':'liked', 'Comments':'comments'})
