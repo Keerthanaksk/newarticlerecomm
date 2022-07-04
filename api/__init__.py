@@ -7,6 +7,8 @@ from api.api.v1.api import api_router
 from starlette.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 
+from fastapi_jwt_auth import AuthJWT
+
 
 
 def register_cors(app: FastAPI):
@@ -30,6 +32,13 @@ def register_cors(app: FastAPI):
 
 
 
+def register_fastapi_jwt_auth(app: FastAPI):
+    @AuthJWT.load_config
+    def get_config():
+        return settings
+
+
+
 def create_app():
     app = FastAPI(
         title=settings.PROJECT_NAME, 
@@ -43,6 +52,7 @@ def create_app():
     app.add_event_handler("shutdown", close_mongo_connection)
 
     register_cors(app)
+    register_fastapi_jwt_auth(app)
 
     return app
 

@@ -1,72 +1,100 @@
+from typing import Optional, List, Union
 
-@app.get("/")
-async def get_all(topic = None):
-    articles = []
-    cursor = coll.find({'topic':topic} if topic else {})
+from api.crud import article
+from api.db.mongodb import get_database
+from api.schemas import ShowArticle, ShowUser
+from api import crud
+from api.core import jwt
+
+from fastapi import APIRouter, Depends, HTTPException
+
+from motor.motor_asyncio import AsyncIOMotorDatabase
+
+router = APIRouter()
+
+@router.get("/", response_model=List[ShowArticle])
+async def get_articles(
+    topic: Union[str, None] = None,
+    limit: int = 100,
+    db: AsyncIOMotorDatabase = Depends(get_database)
+):
+    filter = {}
     
-    async for article in cursor:
-        articles.append(
-            {
-                'id': str(article['_id']), 
-                'title': article['title'],
-                'link': article['link'],
-                'topic': article['topic'],
-                'summary': article['summary'],
-                'clicked': article['clicked'],
-                'liked': article['liked'],
-                'clicks': article['clicks'],
-                'loves': article['loves']
-            }
-        )
+    if topic:
+        filter['topic'] = topic
+    
+    # include loves din
+    articles = await crud.article.get_multi(db, limit, filter)
+    
     return articles
 
 
 
-@app.get("/{id}")
-async def get_by_id(id):
-    oid = ObjectId(id)
-    article = await coll.find_one({'_id': oid})
+@router.post("/love/{id}", response_model=ShowArticle)
+async def love_article_by_id(
+    id: str,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: ShowUser = Depends(jwt.current_user) 
+):
+    '''
+        Returns the article with loves count
+    '''
+
+    article = await crud.article.love_article_by_id(db, id=id, user_id=current_user['_id'])
     
-    article = {
-        'id': str(article['_id']), 
-        'link': article['link'],
-        'topic': article['topic'],
-        'summary': article['summary'],
-        'clicked': article['clicked'],
-        'liked': article['liked'],
-        'clicks': article['clicks'],
-        'loves': article['loves']
-    }
     return article
 
 
 
-@app.patch("/loves/{id}")
-async def increment_loves_by_id(id):
-    oid = ObjectId(id)
-    
-    await coll.update_one({'_id': oid}, {'$inc': {'loves': 1}})
-    
-    article = await coll.find_one({'_id': oid})
+@router.post("/unlove/{id}", response_model=ShowArticle)
+async def unlove_article_by_id(
+    id: str,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: ShowUser = Depends(jwt.current_user) 
+):
+    '''
+        Removes love and returns the article with loves count
+    '''
 
-    article = {
-        'id': str(article['_id']), 
-        'loves': article['loves']
-    }
-
+    article = await crud.article.unlove_article_by_id(db, id=id, user_id=current_user['_id'])
+    
     return article
 
 
 
-@app.patch("/clicks/{id}")
-async def increment_clicks_by_id(id):
+@router.post("/click/{id}")
+async def click_article_by_id(
+    id: str,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: ShowUser = Depends(jwt.current_user) 
+):
     '''
-        Sets clicked to true (1) and increments clicks
+        Mark the article as clicked by the user
+
+        Clicks can duplicate but not loves
     '''
+
+    clicked = await crud.article.click_article_by_id(db, id=id, user_id=current_user['_id'])
     
-    oid = ObjectId(id)
+    if not clicked:
+        raise HTTPException(status_code=500, detail="Article click was not registered")
     
-    await coll.update_one({'_id': oid}, {'$inc': {'clicks': 1}, '$set' : {'clicked': True}})
+    return {'detail': 'Successfully clicked'}
+
+
+# @app.get("/{id}")
+# async def get_by_id(id):
+#     oid = ObjectId(id)
+#     article = await coll.find_one({'_id': oid})
     
-    # return 200
-    return 1
+#     article = {
+#         'id': str(article['_id']), 
+#         'link': article['link'],
+#         'topic': article['topic'],
+#         'summary': article['summary'],
+#         'clicked': article['clicked'],
+#         'liked': article['liked'],
+#         'clicks': article['clicks'],
+#         'loves': article['loves']
+#     }
+#     return article

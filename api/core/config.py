@@ -14,6 +14,16 @@ class Settings(BaseSettings):
     MONGO_URL: str
     MONGO_DB: str
 
+    # jwt
+    authjwt_secret_key: str = SECRET_KEY
+    # Configure application to store and get JWT from cookies
+    AUTHJWT_TOKEN_LOCATION: set = {"cookies"}
+    # Disable CSRF Protection for this example. default is True
+    AUTHJWT_COOKIE_CSRF_PROTECT: bool = False
+
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 60 # 1 hour
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 1 week
+
 
 class DevelopmentSettings(Settings):
     pass

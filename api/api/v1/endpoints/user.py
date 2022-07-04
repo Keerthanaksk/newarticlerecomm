@@ -1,11 +1,11 @@
 from typing import List, Optional
 
-from api.schemas import ShowUser, UserCreate
 from api import crud
+from api.core import jwt
+from api.schemas import ShowUser, UserCreate
 from api.db.mongodb import get_database
 
-from fastapi import APIRouter, Depends, status
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -21,15 +21,13 @@ async def get_users(
 
 
 
-@router.get('/{id}', response_model=ShowUser)
+@router.get('/id/{id}', response_model=ShowUser)
 async def get_user_by_id(
     id: str,
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
     user = await crud.user.get_by_id(db, id)
     return user
-
-
 
 @router.post('/', response_model=ShowUser)
 async def create_user(
@@ -41,3 +39,9 @@ async def create_user(
     created_user = await crud.user.get_by_id(db, str(result.inserted_id))
     
     return created_user
+
+@router.get('/current-user', response_model=ShowUser)
+async def get_current_user(
+    current_user: ShowUser = Depends(jwt.current_user)
+):
+    return current_user
