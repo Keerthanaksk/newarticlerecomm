@@ -18,12 +18,15 @@ async def get_articles(
     limit: int = 100,
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
+    '''
+        Return articles with love counts
+    '''
     filter = {}
     
     if topic:
         filter['topic'] = topic
     
-    # include loves din
+    
     articles = await crud.article.get_multi(db, limit, filter)
     
     return articles

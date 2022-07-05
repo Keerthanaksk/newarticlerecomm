@@ -1,3 +1,5 @@
+from bson import ObjectId
+
 from api.crud import CRUDBase
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -14,11 +16,46 @@ class CRUDArticle(CRUDBase):
         return {**article, 'loves': loves}
 
     async def get_multi(self, db: AsyncIOMotorDatabase, length, filter=None):
-        # include loves
-        return await super().get_multi(db, length, filter)
+        
+        result = db[self.collection].aggregate(
+            [
+                # filter 
+                {
+                    '$match': filter if filter else {}
+                },
+                
+                # Joining collections
+                {
+                    '$lookup': 
+                    {
+                        'from': 'lovedArticles',
+                        'localField': '_id',
+                        'foreignField': 'article_id',
+                        'as': 'users'
+                    },
+                },
+                
+                # Columns to show
+                {
+                    '$project': {
+                        'link': 1,
+                        'title': 1,
+                        'topic': 1,
+                        'summary': 1,
+                        'loves': {'$size': '$users'}
+                    }
+                }
+            ]
+        )
+        
+        result = await result.to_list(length)
+        
+        return result
 
     async def love_article_by_id(self, db: AsyncIOMotorDatabase, id: str, user_id: str):
-        
+        id = ObjectId(id)
+        user_id = ObjectId(user_id)
+
         collection = db[self.loved_articles]
         operation = {'user_id': user_id, 'article_id': id}
         
@@ -36,7 +73,9 @@ class CRUDArticle(CRUDBase):
         return {**article}
 
     async def unlove_article_by_id(self, db: AsyncIOMotorDatabase, id: str, user_id: str):
-        
+        id = ObjectId(id)
+        user_id = ObjectId(user_id)
+
         result = await db[self.loved_articles].delete_one({'user_id': user_id, 'article_id': id})
         
         article = await self.get_by_id(db, id)
@@ -44,12 +83,16 @@ class CRUDArticle(CRUDBase):
         return {**article}
 
     async def count_loves(self, db: AsyncIOMotorDatabase, id: str):
+        id = ObjectId(id)
+
         loves = await db[self.loved_articles].count_documents({'article_id': id})
 
         return loves
 
     async def click_article_by_id(self, db: AsyncIOMotorDatabase, id: str, user_id: str):
-        
+        id = ObjectId(id)
+        user_id = ObjectId(user_id)
+
         collection = db[self.clicked_articles]
         operation = {'user_id': user_id, 'article_id': id}
         
