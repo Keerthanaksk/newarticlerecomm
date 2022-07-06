@@ -23,6 +23,10 @@
 
             </div>
           </div>
+          <div class="d-grid gap-2 mt-5">
+            <Logout/>
+          </div>
+          
         </div>
       </div>
       <div class="col-9">
@@ -37,13 +41,15 @@
 
   import Articles from '../components/Articles.vue'
   import Topics from '../components/Topics.vue'
+  import Logout from '../components/Logout.vue'
   
   export default {
     name: 'Home',
 
     components: {
       Articles,
-      Topics
+      Topics,
+      Logout
     },
     
     methods: {

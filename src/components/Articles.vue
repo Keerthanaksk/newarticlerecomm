@@ -9,10 +9,10 @@
         <div class="d-grid gap-5 articles p-3 pb-5" v-if="this.topic">
             <Article
                 v-for="article in this.articles"
-                :key="article.id"
-                :id="article.id"
-                :title="article.title"
+                :key="article['_id']"
+                :id="article['_id']"
                 :link="article.link"
+                :title="article.title"
                 :summary="article.summary"
                 :loves="article.loves"
             />
@@ -38,7 +38,7 @@
         watch: {
             topic(newTopic) {
                 axios
-                .get('https://articles-recommender.azurewebsites.net/api/', {
+                .get('http://localhost:8000/article', {
                     params: {
                         topic: newTopic
                     }
@@ -46,12 +46,6 @@
                 .then(response => this.articles = response['data'])
             }
         },
-        
-        // mounted() {
-        //         axios
-        //         .get('http://localhost:8000/api/')
-        //         .then(response => this.articles = response['data'])
-        // },
 
         data() {
             return {

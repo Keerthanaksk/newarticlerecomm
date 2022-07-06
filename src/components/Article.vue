@@ -22,13 +22,8 @@
 </template>
 
 <script>
-// <div class="d-flex justify-content-end">
-//                 <div class="d-flex flex-column align-items-center">
-//                     <i class="bi bi-heart-fill text-danger" @click="love"></i>
-//                     <span>{{this.loveCount}}</span>
-//                 </div>
-//             </div>
-    import axios from 'axios'
+
+    // import axios from 'axios'
 
     export default {
         name: 'Article',
@@ -53,21 +48,40 @@
             
         },
 
-        computed: {
-            randomPic() {
-                return `https://picsum.photos/seed/` + Math.floor(Math.random() * 100) + `/600/400`
-            }
-        },
-
         methods: {
             async linkClick() {
-                axios
-                .patch(`https://articles-recommender.azurewebsites.net/api/clicks/${this.id}`)
+                await fetch(
+                    `http://localhost:8000/article/click/${this.id}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Access-Control-Allow-Credetials": "true",
+                        },
+                        credentials: 'include',
+                    }
+                )
+                .then(res => res.json()).then(data => console.log(data))
+                .catch(res => console.log(res))
+
             },
             async love() {
-                axios
-                .patch(`https://articles-recommender.azurewebsites.net/api/loves/${this.id}`)
-                .then(response => this.loveCount = response['data']['loves'])
+                // if loved already, req to unlove
+
+                await fetch(
+                    `http://localhost:8000/article/love/${this.id}`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Access-Control-Allow-Credetials": "true",
+                        },
+                        credentials: 'include',
+                    }
+                )
+                .then(res => res.json()).then(data => this.loveCount = data['loves'])
+                .catch(res => console.log(res))
+                
             }
         },
     }
