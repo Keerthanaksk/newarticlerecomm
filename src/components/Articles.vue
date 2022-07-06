@@ -14,7 +14,8 @@
                 :link="article.link"
                 :title="article.title"
                 :summary="article.summary"
-                :loves="article.loves"
+                :loveCounts="article.loves"
+                :isLoved="article.loved"
             />
         </div>
     </div>
@@ -24,7 +25,6 @@
 <script>
 
     import Article from './Article.vue'
-    import axios from 'axios'
 
     export default {
         name: 'Articles',
@@ -37,13 +37,25 @@
 
         watch: {
             topic(newTopic) {
-                axios
-                .get('http://localhost:8000/article', {
-                    params: {
-                        topic: newTopic
+                fetch(
+                    'http://localhost:8000/article?' + new URLSearchParams(
+                        {
+                            topic: newTopic
+                        }
+                    ),
+                    {
+                        method: 'GET',
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Access-Control-Allow-Credetials": "true",
+                        },
+                        credentials: 'include',
                     }
+                )    
+                .then(res => res.json()).then(data => {
+                    this.articles = data
                 })
-                .then(response => this.articles = response['data'])
+                .catch(res => console.log(res))
             }
         },
 

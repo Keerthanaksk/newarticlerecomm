@@ -8,7 +8,7 @@
                 
                 <div class="d-flex flex-column align-items-center align-self-center">
                     <i class="bi bi-heart-fill text-danger" @click="love"></i>
-                    <span>{{this.loveCount}}</span>
+                    <span>{{this.loves}}</span>
                 </div>
                 <div class="ms-4">
                     <p class="card-text">{{this.summary}}</p>
@@ -30,8 +30,8 @@
         
         data() {
             return {
-                loveCount: 0,
-                test: ''
+                loves: 0,
+                loved: false
             }
         },
 
@@ -40,12 +40,13 @@
             title: String,
             link: String,
             summary: String,
-            loves: Number
+            loveCounts: Number,
+            isLoved: Boolean
         },
 
         created() {
-            this.loveCount = this.loves
-            
+            this.loves = this.loveCounts
+            this.loved = this.isLoved
         },
 
         methods: {
@@ -66,10 +67,13 @@
 
             },
             async love() {
+                console.log('before')
+                console.log(this.loved)
                 // if loved already, req to unlove
+                const url = this.loved ? `http://localhost:8000/article/unlove/${this.id}` : `http://localhost:8000/article/love/${this.id}`
 
                 await fetch(
-                    `http://localhost:8000/article/love/${this.id}`,
+                    url,
                     {
                         method: 'POST',
                         headers: {
@@ -79,9 +83,15 @@
                         credentials: 'include',
                     }
                 )
-                .then(res => res.json()).then(data => this.loveCount = data['loves'])
+                .then(res => res.json()).then(data => {
+                    this.loves = data['loves']
+                    this.loved = data['loved']
+
+                })
                 .catch(res => console.log(res))
                 
+                console.log('after')
+                console.log(this.loved)
             }
         },
     }

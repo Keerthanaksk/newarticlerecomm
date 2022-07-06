@@ -7,6 +7,7 @@ class ArticleBase:
     topic: Optional[str]
     summary: Optional[str]
     loves: Optional[int]
+    loved: Optional[bool]
 
 class ShowArticle(ArticleBase, PKModel):
     link: str
@@ -14,6 +15,8 @@ class ShowArticle(ArticleBase, PKModel):
     topic: str
     summary: str
     loves: int
+    loved: Optional[bool]
+    
 
 class ArticleCreate(ArticleBase):
     pass

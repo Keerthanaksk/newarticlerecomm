@@ -1,3 +1,4 @@
+from copyreg import constructor
 from typing import Optional, List, Union
 
 from api.crud import article
@@ -8,6 +9,8 @@ from api.core import jwt
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from fastapi_jwt_auth import AuthJWT
+
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 router = APIRouter()
@@ -16,18 +19,24 @@ router = APIRouter()
 async def get_articles(
     topic: Union[str, None] = None,
     limit: int = 100,
-    db: AsyncIOMotorDatabase = Depends(get_database)
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    Authorize: AuthJWT = Depends()
 ):
     '''
         Return articles with love counts
+
+        Optionally, it can return 'loved' as True of False if an article is loved by the current user
     '''
+    Authorize.jwt_optional()
+    
+    user_id = Authorize.get_jwt_subject()
+    
     filter = {}
     
     if topic:
         filter['topic'] = topic
     
-    
-    articles = await crud.article.get_multi(db, limit, filter)
+    articles = await crud.article.get_multi(db, limit, filter, loved_by_user_id=user_id)
     
     return articles
 
@@ -42,7 +51,6 @@ async def love_article_by_id(
     '''
         Returns the article with loves count
     '''
-
     article = await crud.article.love_article_by_id(db, id=id, user_id=current_user['_id'])
     
     return article
@@ -58,7 +66,7 @@ async def unlove_article_by_id(
     '''
         Removes love and returns the article with loves count
     '''
-
+    print('unlove',current_user['_id'])
     article = await crud.article.unlove_article_by_id(db, id=id, user_id=current_user['_id'])
     
     return article

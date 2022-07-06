@@ -1,3 +1,4 @@
+from typing import Union
 from bson import ObjectId
 
 from api.crud import CRUDBase
@@ -10,13 +11,37 @@ class CRUDArticle(CRUDBase):
     loved_articles = 'lovedArticles'
     clicked_articles = 'clickedArticles'
 
-    async def get_by_id(self, db, id: str):
+    async def get_by_id(self, db, id: str, user_id: Union[str, None] = None):
         article = await super().get_by_id(db, id)
         loves = await self.count_loves(db, id)
-        return {**article, 'loves': loves}
-
-    async def get_multi(self, db: AsyncIOMotorDatabase, length, filter=None):
         
+        result = {**article, 'loves': loves}
+        
+        if user_id:
+            result['loved'] = await self.is_loved_by_user(db, id, user_id=user_id)
+        
+        return result
+
+
+
+    async def get_multi(self, db: AsyncIOMotorDatabase, length, filter=None, loved_by_user_id=None):
+        
+        # fields to show
+        project = {
+            '$project': {
+                'link': 1,
+                'title': 1,
+                'topic': 1,
+                'summary': 1,
+                'loves': {'$size': '$users'}
+            }
+        }
+
+        # adds a field to indicate if article is loved by the given user
+        if loved_by_user_id:
+            loved_by_user_id = ObjectId(loved_by_user_id)
+            project['$project']['loved'] = {'$cond': [ {'$in': [ loved_by_user_id, '$users.user_id']}, True, False]}
+
         result = db[self.collection].aggregate(
             [
                 # filter 
@@ -34,23 +59,15 @@ class CRUDArticle(CRUDBase):
                         'as': 'users'
                     },
                 },
-                
-                # Columns to show
-                {
-                    '$project': {
-                        'link': 1,
-                        'title': 1,
-                        'topic': 1,
-                        'summary': 1,
-                        'loves': {'$size': '$users'}
-                    }
-                }
+                project
             ]
         )
         
         result = await result.to_list(length)
         
         return result
+
+
 
     async def love_article_by_id(self, db: AsyncIOMotorDatabase, id: str, user_id: str):
         id = ObjectId(id)
@@ -68,9 +85,11 @@ class CRUDArticle(CRUDBase):
             # create association
             article = await collection.insert_one(operation)
         
-        article = await self.get_by_id(db, id)
+        article = await self.get_by_id(db, id, str(user_id))
         
         return {**article}
+
+
 
     async def unlove_article_by_id(self, db: AsyncIOMotorDatabase, id: str, user_id: str):
         id = ObjectId(id)
@@ -78,16 +97,33 @@ class CRUDArticle(CRUDBase):
 
         result = await db[self.loved_articles].delete_one({'user_id': user_id, 'article_id': id})
         
-        article = await self.get_by_id(db, id)
+        article = await self.get_by_id(db, id, str(user_id))
         
         return {**article}
+
+
 
     async def count_loves(self, db: AsyncIOMotorDatabase, id: str):
         id = ObjectId(id)
 
         loves = await db[self.loved_articles].count_documents({'article_id': id})
-
+        
         return loves
+
+
+
+    async def is_loved_by_user(self, db: AsyncIOMotorDatabase, id: str, user_id=None):
+        id = ObjectId(id)
+        user_id = ObjectId(user_id)
+
+        loved = await db[self.loved_articles].find_one({'article_id': id, 'user_id': user_id})
+        
+        if not loved:
+            return False
+
+        return True
+
+
 
     async def click_article_by_id(self, db: AsyncIOMotorDatabase, id: str, user_id: str):
         id = ObjectId(id)
@@ -108,6 +144,8 @@ class CRUDArticle(CRUDBase):
             False
         
         return True
+
+
 
 article = CRUDArticle('articles')
 
