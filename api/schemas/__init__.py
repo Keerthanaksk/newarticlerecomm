@@ -5,5 +5,6 @@ from api.schemas.user import (
 
 from api.schemas.article import (
     ShowArticle,
-    ArticleCreate
+    ArticleCreate,
+    ArticleStats
 )

@@ -3,7 +3,7 @@ from typing import Optional, List, Union
 
 from api.crud import article
 from api.db.mongodb import get_database
-from api.schemas import ShowArticle, ShowUser
+from api.schemas import ShowArticle, ShowUser, ArticleStats
 from api import crud
 from api.core import jwt
 
@@ -93,19 +93,18 @@ async def click_article_by_id(
     return {'detail': 'Successfully clicked'}
 
 
-# @app.get("/{id}")
-# async def get_by_id(id):
-#     oid = ObjectId(id)
-#     article = await coll.find_one({'_id': oid})
-    
-#     article = {
-#         'id': str(article['_id']), 
-#         'link': article['link'],
-#         'topic': article['topic'],
-#         'summary': article['summary'],
-#         'clicked': article['clicked'],
-#         'liked': article['liked'],
-#         'clicks': article['clicks'],
-#         'loves': article['loves']
-#     }
-#     return article
+
+@router.post("/articles-stats", response_model=List[ArticleStats])
+async def articles_stats(
+    limit: int = 100,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: ShowUser = Depends(jwt.current_user)
+):
+    '''
+        See stats of articles read(clicked Read more) and loved by the user
+    '''
+
+    articles = await crud.article.articles_stats(db, limit, user_id=current_user['_id'])
+
+    return articles
+

@@ -1,5 +1,7 @@
+from tokenize import group
 from typing import Union
 from bson import ObjectId
+import pandas as pd
 
 from api.crud import CRUDBase
 
@@ -145,6 +147,63 @@ class CRUDArticle(CRUDBase):
         
         return True
 
+
+
+    async def articles_stats(self, db: AsyncIOMotorDatabase, length, user_id: str):
+        '''
+            articles lookup lovedarticles count loves
+            loved check if loved by user
+            clicks by user for this article
+
+            filter loved articles by user_id - get article ids
+            filter clicks by user_id, group by article id, sum clicks
+        '''
+        
+        user_id = ObjectId(user_id)
+
+        # clickedarticles filter by user_id, 
+        # group by articles and count clicks
+        clicked = db[self.clicked_articles].find({'user_id': user_id})
+        clicked = pd.DataFrame(await clicked.to_list(length))
+        clicked = clicked.drop(columns=['_id', 'user_id'])
+        clicked['clicks'] = 1
+        clicked = pd.DataFrame(clicked.groupby(['article_id']).sum())
+        clicked = clicked.reset_index()
+        
+        # lovedarticles filter by user_id, 
+        loved = db[self.loved_articles].find({'user_id': user_id})
+        loved = pd.DataFrame(await loved.to_list(length))
+        loved = loved.drop(columns=['_id', 'user_id'])
+        
+        # combine articles in loved and clicked
+        article_ids = []
+        article_ids.extend(clicked['article_id'].tolist())
+        article_ids.extend(loved['article_id'].tolist())
+
+        article_ids = list(set(article_ids))
+
+        # get articles loved or clicked by the user
+        filter = {
+            '_id': {'$in': article_ids}
+        }
+        
+        articles = await self.get_multi(db, length, filter=filter, loved_by_user_id=str(user_id))
+        articles = pd.DataFrame(articles)
+        
+        # rename clicked article_id col to _id
+        clicked = clicked.rename(columns={'article_id':'_id'})
+
+        # join clicked counts
+        joined = articles.join(clicked.set_index('_id'), on='_id')
+
+        # convert NaN to 0
+        joined['clicks'] = joined['clicks'].fillna(0).astype('int')
+
+        # objectid to string
+        joined['_id'] = joined['_id'].astype('str')
+
+        return joined.to_dict('records')
+        
 
 
 article = CRUDArticle('articles')

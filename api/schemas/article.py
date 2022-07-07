@@ -20,3 +20,12 @@ class ShowArticle(ArticleBase, PKModel):
 
 class ArticleCreate(ArticleBase):
     pass
+
+class ArticleStats(ArticleBase, PKModel):
+    link: str
+    title: str
+    topic: str
+    summary: str
+    loves: int
+    loved: Optional[bool]
+    clicks: int
