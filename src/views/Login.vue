@@ -4,7 +4,6 @@
             <div class="col-5">
                 <div class="card border-0 shadow mt-5">
                     <div class="card-body p-5">
-                        {{this.$store.state.API_BASE_URL}}
                         <h1 class="card-title display-6 text-center fw-bolder">Welcome Back!</h1>
                         <h6 class="card-subtitle mb-4 text-muted text-center">Intelligent Newsletter by UnionBank and Aboitiz</h6>
                         
@@ -39,11 +38,7 @@
                 password: ''
             }
         },
-        mounted() {
-          console.log(process.env.VUE_APP_API_BASE_URL)
-          console.log(process.env.VUE_APP_ENV)
-          console.log(process.env.test)
-        },
+
         methods: {
             async login() {
                 var bodyFormData = new FormData();

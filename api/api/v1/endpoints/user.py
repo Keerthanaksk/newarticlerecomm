@@ -12,6 +12,10 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 router = APIRouter()
 
+@router.get('/')
+async def test():
+    return {'msg': os.environ.get('FRONTEND_ORIGIN')}
+
 @router.get('/', response_model=List[ShowUser])
 async def get_users(
     limit: int = 100,
