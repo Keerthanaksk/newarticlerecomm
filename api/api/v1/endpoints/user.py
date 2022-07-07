@@ -12,7 +12,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 router = APIRouter()
 
-@router.get('/')
+@router.get('/test')
 async def test():
 
     return {'msg': [os.environ.get('FRONTEND_ORIGIN'),os.environ.get('FASTAPI_ENV'),os.environ.get('MONGO_URL'),os.environ.get('MONGO_DB')]}
@@ -24,12 +24,6 @@ async def get_users(
 ):
     users = await crud.user.get_multi(db, length=limit)
     return users
-
-@router.get('/test')
-async def test():
-    x = os.environ.get('TEST')
-    return {'x':x}
-
 
 @router.get('/id/{id}', response_model=ShowUser)
 async def get_user_by_id(
