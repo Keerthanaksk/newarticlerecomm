@@ -22,7 +22,7 @@ async def get_users(
 
 @router.get('/test')
 async def test():
-    x = os.getenv('TEST')
+    x = os.environ.get('TEST')
     return {'x':x}
 
 
