@@ -3,6 +3,7 @@ node_modules
 /dist
 __pycache__
 .env
+api/feed.py
 
 # etc
 todo.txt
