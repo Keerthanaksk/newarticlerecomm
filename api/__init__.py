@@ -21,7 +21,7 @@ def register_cors(app: FastAPI):
         origins = [
             'http://localhost:8080'
         ]
-    print(origins)
+    
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,

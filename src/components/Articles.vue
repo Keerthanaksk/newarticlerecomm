@@ -38,7 +38,7 @@
         watch: {
             topic(newTopic) {
                 fetch(
-                    'http://localhost:8000/article?' + new URLSearchParams(
+                    this.$store.state.API_BASE_URL + 'article?' + new URLSearchParams(
                         {
                             topic: newTopic
                         }

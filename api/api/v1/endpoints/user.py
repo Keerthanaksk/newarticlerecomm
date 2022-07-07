@@ -12,11 +12,6 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 router = APIRouter()
 
-@router.get('/test')
-async def test():
-
-    return {'msg': [os.environ.get('FRONTEND_ORIGIN'),os.environ.get('FASTAPI_ENV'),os.environ.get('MONGO_URL'),os.environ.get('MONGO_DB')]}
-
 @router.get('/', response_model=List[ShowUser])
 async def get_users(
     limit: int = 100,

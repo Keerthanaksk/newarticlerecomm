@@ -22,7 +22,7 @@
             async logout() {
                 await axios({
                     method: 'post',
-                    url: 'http://localhost:8000/auth/logout',
+                    url: this.$store.state.API_BASE_URL + 'auth/logout',
                     withCredentials: true,
                 })
                 .then(
