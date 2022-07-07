@@ -1,4 +1,5 @@
 from typing import List, Optional
+import os
 
 from api import crud
 from api.core import jwt
@@ -19,6 +20,10 @@ async def get_users(
     users = await crud.user.get_multi(db, length=limit)
     return users
 
+@router.get('/test')
+async def test():
+    x = os.getenv('TEST')
+    return {'x':x}
 
 
 @router.get('/id/{id}', response_model=ShowUser)

@@ -2,8 +2,9 @@ import os, secrets
 from dotenv import load_dotenv
 from pydantic import BaseSettings
 
-env_path = '.env'
-load_dotenv(dotenv_path=env_path)
+# env_path = '.env'
+# load_dotenv(dotenv_path=env_path)
+load_dotenv()
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Intelligent Newsletter"
