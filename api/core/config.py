@@ -1,10 +1,10 @@
 import os, secrets
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from pydantic import BaseSettings
 
 # env_path = '.env'
 # load_dotenv(dotenv_path=env_path)
-load_dotenv()
+# load_dotenv()
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Intelligent Newsletter"
@@ -12,8 +12,8 @@ class Settings(BaseSettings):
     PROJECT_VERSION: str = "1.0.0"
 
     SECRET_KEY: str = secrets.token_urlsafe(32) 
-    MONGO_URL: str
-    MONGO_DB: str
+    MONGO_URL: str = os.environ.get('MONGO_URL', 'mongodb://localhost:27017/')
+    MONGO_DB: str = os.environ.get('MONGO_DB', 'unionbank')
 
     # jwt
     authjwt_secret_key: str = SECRET_KEY
@@ -37,7 +37,7 @@ class ProductionSettings(Settings):
 
 
 def load_settings():
-    if os.getenv('FASTAPI_ENV') == 'prod':
+    if os.environ.get('FASTAPI_ENV') == 'prod':
         return ProductionSettings()
     else:
         return DevelopmentSettings()
