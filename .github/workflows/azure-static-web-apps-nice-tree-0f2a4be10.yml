@@ -32,9 +32,8 @@ jobs:
           output_location: "dist" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
         env:
-          VUE_APP_API_BASE_URL: base url
-          VUE_APP_ENV: app env
-          test: testtt
+          VUE_APP_API_BASE_URL: https://articles-recommender.azurewebsites.net/
+          VUE_APP_ENV: prod
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
