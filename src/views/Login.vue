@@ -5,6 +5,7 @@
                 <div class="card border-0 shadow mt-5">
                     <div class="card-body p-5">
                         {{this.$store.state.API_BASE_URL}}
+                        {{this.$store.state.test}}
                         <h1 class="card-title display-6 text-center fw-bolder">Welcome Back!</h1>
                         <h6 class="card-subtitle mb-4 text-muted text-center">Intelligent Newsletter by UnionBank and Aboitiz</h6>
                         
