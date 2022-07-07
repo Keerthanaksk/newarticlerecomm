@@ -48,7 +48,7 @@
                 
                 await axios({
                     method: 'post',
-                    url: 'http://localhost:8000/auth/login',
+                    url: this.$store.state.API_BASE_URL + 'auth/login',
                     data: bodyFormData,
                     withCredentials: true,
                     headers: {'Content-Type': 'multipart/form-data'}

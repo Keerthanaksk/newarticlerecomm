@@ -52,7 +52,7 @@
         methods: {
             async linkClick() {
                 await fetch(
-                    `http://localhost:8000/article/click/${this.id}`,
+                    this.$store.state.API_BASE_URL + `article/click/${this.id}`,
                     {
                         method: 'POST',
                         headers: {
@@ -67,10 +67,9 @@
 
             },
             async love() {
-                console.log('before')
-                console.log(this.loved)
+
                 // if loved already, req to unlove
-                const url = this.loved ? `http://localhost:8000/article/unlove/${this.id}` : `http://localhost:8000/article/love/${this.id}`
+                const url = this.$store.state.API_BASE_URL + (this.loved ? `article/unlove/${this.id}` : `article/love/${this.id}`)
 
                 await fetch(
                     url,
@@ -90,8 +89,6 @@
                 })
                 .catch(res => console.log(res))
                 
-                console.log('after')
-                console.log(this.loved)
             }
         },
     }
