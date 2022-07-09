@@ -5,15 +5,15 @@ from pydantic import BaseModel, Field, validator, root_validator
 from api.schemas.base_class import PKModel
 
 class UserBase(BaseModel):
-    username: Optional[str]
+    email: Optional[str]
 
 class ShowUser(UserBase, PKModel):
-    username: str
+    email: str
 
 class UserCreate(UserBase):
-    username: str
+    email: str
     password: str
 
 class UserInDB(UserBase, PKModel):
-    username: str
+    email: str
     password: str

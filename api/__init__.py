@@ -10,7 +10,6 @@ from fastapi import FastAPI
 from fastapi_jwt_auth import AuthJWT
 
 
-
 def register_cors(app: FastAPI):
     
     if os.environ.get('FASTAPI_ENV') == 'prod':

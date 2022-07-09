@@ -1,5 +1,9 @@
 from typing import Optional
+
+import click
+from pydantic import BaseModel
 from api.schemas.base_class import PKModel
+from bson import ObjectId
 
 class ArticleBase:
     link: Optional[str]
@@ -16,8 +20,6 @@ class ShowArticle(ArticleBase, PKModel):
     summary: str
     total_loves: int
     total_clicks: int
-    # loved: Optional[bool]
-    
 
 class ArticleCreate(ArticleBase):
     pass
@@ -30,3 +32,12 @@ class ArticleStats(ArticleBase, PKModel):
     loves: int
     loved: Optional[bool]
     clicks: int
+
+class CreateArticleInteraction(BaseModel):
+    link: str
+    user_id: ObjectId
+    loved: bool
+    clicks: int = 0
+
+    class Config:
+        arbitrary_types_allowed = True

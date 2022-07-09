@@ -6,5 +6,6 @@ from api.schemas.user import (
 from api.schemas.article import (
     ShowArticle,
     ArticleCreate,
-    ArticleStats
+    ArticleStats,
+    CreateArticleInteraction
 )

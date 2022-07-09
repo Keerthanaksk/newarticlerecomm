@@ -19,10 +19,10 @@ async def login(
     user_in: OAuth2PasswordRequestForm = Depends(),
     Authorize: AuthJWT = Depends()
 ):
-    user = await crud.user.authenticate(db, username=user_in.username, password=user_in.password)
+    user = await crud.user.authenticate(db, email=user_in.username, password='test')
 
     if not user:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
     
     access_token = Authorize.create_access_token(
         subject=user.id, 
