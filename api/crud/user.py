@@ -10,6 +10,25 @@ class CRUDUser(CRUDBase):
         return await super().get_by_id(db, id=id)
 
     async def get_multi(self, db: AsyncIOMotorDatabase, length):
+        '''
+            [
+                {
+                    id: objid
+                    email: str,
+                    articles : [
+                        {
+                            id: objid
+                            link: str
+                            loved: str
+                            clicks: int
+                        },
+                        ...
+                    ]
+                },
+                ...
+            ]
+        '''
+
         return await super().get_multi(db, length=length)
 
     async def get_by_username(self, db: AsyncIOMotorDatabase, username: str):

@@ -26,7 +26,22 @@ class CRUDArticle(CRUDBase):
 
 
 
-    async def get_multi(self, db: AsyncIOMotorDatabase, length, filter=None, loved_by_user_id=None):
+    async def get_multi(self, db: AsyncIOMotorDatabase, length, filter=None):
+        '''
+        [
+            {
+                id: objid,
+                link: str
+                title: str
+                topic: str
+                summary: str
+                total_loves: int
+                total_clicks: int
+            },
+            ...
+        ]
+        
+        '''
         
         # fields to show
         project = {
@@ -35,14 +50,15 @@ class CRUDArticle(CRUDBase):
                 'title': 1,
                 'topic': 1,
                 'summary': 1,
-                'loves': {'$size': '$users'}
+                'total_loves': {'$size': '$users_loved'},
+                'total_clicks': {'$size': '$users_clicked'}
             }
         }
 
         # adds a field to indicate if article is loved by the given user
-        if loved_by_user_id:
-            loved_by_user_id = ObjectId(loved_by_user_id)
-            project['$project']['loved'] = {'$cond': [ {'$in': [ loved_by_user_id, '$users.user_id']}, True, False]}
+        # if loved_by_user_id:
+        #     loved_by_user_id = ObjectId(loved_by_user_id)
+        #     project['$project']['loved'] = {'$cond': [ {'$in': [ loved_by_user_id, '$users.user_id']}, True, False]}
 
         result = db[self.collection].aggregate(
             [
@@ -58,7 +74,17 @@ class CRUDArticle(CRUDBase):
                         'from': 'lovedArticles',
                         'localField': '_id',
                         'foreignField': 'article_id',
-                        'as': 'users'
+                        'as': 'users_loved'
+                    },
+                },
+
+                {
+                    '$lookup': 
+                    {
+                        'from': 'clickedArticles',
+                        'localField': '_id',
+                        'foreignField': 'article_id',
+                        'as': 'users_clicked'
                     },
                 },
                 project

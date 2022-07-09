@@ -14,8 +14,9 @@ class ShowArticle(ArticleBase, PKModel):
     title: str
     topic: str
     summary: str
-    loves: int
-    loved: Optional[bool]
+    total_loves: int
+    total_clicks: int
+    # loved: Optional[bool]
     
 
 class ArticleCreate(ArticleBase):

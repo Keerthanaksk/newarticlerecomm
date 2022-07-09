@@ -19,24 +19,18 @@ router = APIRouter()
 async def get_articles(
     topic: Union[str, None] = None,
     limit: int = 100,
-    db: AsyncIOMotorDatabase = Depends(get_database),
-    Authorize: AuthJWT = Depends()
+    db: AsyncIOMotorDatabase = Depends(get_database)
 ):
     '''
-        Return articles with love counts
-
-        Optionally, it can return 'loved' as True of False if an article is loved by the current user
+        Return articles with love and click counts
     '''
-    Authorize.jwt_optional()
-    
-    user_id = Authorize.get_jwt_subject()
     
     filter = {}
     
     if topic:
         filter['topic'] = topic
     
-    articles = await crud.article.get_multi(db, limit, filter, loved_by_user_id=user_id)
+    articles = await crud.article.get_multi(db, limit, filter)
     
     return articles
 
