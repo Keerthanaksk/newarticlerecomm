@@ -2,14 +2,15 @@ from api.core.security import verify_password
 from api.schemas.user import UserInDB
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from api.schemas import UserCreate
+from api import crud
 from api.crud import CRUDBase
+
+from fastapi import HTTPException
 
 class CRUDUser(CRUDBase):
 
     async def get_by_id(self, db: AsyncIOMotorDatabase, id: str):
         return await super().get_by_id(db, id=id)
-
-
 
     async def get_multi(self, db: AsyncIOMotorDatabase, length):
         return await super().get_multi(db, length=length)
@@ -39,6 +40,79 @@ class CRUDUser(CRUDBase):
             return None
 
         return user
+
+    async def get_interactions(self, db: AsyncIOMotorDatabase, length: int):
+        '''
+        Returns the article interactions per user
+
+        Returns a list of dict:
+            email: str
+            links: List
+                link: str
+                loved: bool
+                clicks: int
+        '''
+
+        users_collection = db[self.collection]
+
+        try:
+            result = users_collection.aggregate(
+                [
+                    {
+                        '$lookup':
+                        {
+                            'from': crud.article.articleInteractions,
+                            'localField': '_id',
+                            'foreignField': 'user_id',
+                            'as': 'links'
+                        }
+                    },
+                    {
+                        '$lookup':
+                        {
+                            'from': crud.article.collection,
+                            'localField': 'links.link',
+                            'foreignField': 'link',
+                            'as': 'date'
+                        }
+                    },
+                    {
+                        '$addFields': 
+                        {
+                            'links.date': '$date.date_recommended'
+                        }
+                    }
+                    # {
+                    #     '$project': 
+                    #     {
+                    #         'password': 0,
+                    #         'links._id': 0
+                    #     }
+                    # }
+                ]
+            )
+
+            result = await result.to_list(length)
+
+            from pprint import pprint
+
+            pprint(result)
+
+
+            return []
+        except Exception as e:
+            print(e)
+            raise HTTPException(
+                status_code=500, 
+                detail="An error occured while getting user interactions."
+            )
+
+        # lookup
+        # id = user_id
+
+        # exclude i
+
+
 
 
 

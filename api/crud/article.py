@@ -2,7 +2,6 @@ from tokenize import group
 from typing import Union
 from bson import ObjectId
 import pandas as pd
-import logging
 
 from fastapi import HTTPException
 
@@ -41,16 +40,15 @@ class CRUDArticle(CRUDBase):
 
     async def get_multi(self, db: AsyncIOMotorDatabase, length, filter=None, user_id=None):
         '''
-        Returns:
-            A list of dictionary containing:
-                id: ObjectId,
-                link: str
-                title: str
-                topic: str
-                summary: str
-                total_loves: int
-                total_clicks: int
-                loved: Optional(bool)
+        Returns a list of dictionary containing:
+            id: ObjectId,
+            link: str
+            title: str
+            topic: str
+            summary: str
+            total_loves: int
+            total_clicks: int
+            loved: Optional(bool)
 
         '''
         
@@ -119,7 +117,6 @@ class CRUDArticle(CRUDBase):
             return result
 
         except Exception as e:
-            logging.error(e)
             
             raise HTTPException(
                 status_code=500, 
@@ -257,84 +254,4 @@ class CRUDArticle(CRUDBase):
                 detail="An error occured while updating the click interaction."
             )
 
-
-
-    async def articles_stats(self, db: AsyncIOMotorDatabase, length, user_id: str):
-        '''
-            articles lookup lovedarticles count loves
-            loved check if loved by user
-            clicks by user for this article
-
-            filter loved articles by user_id - get article ids
-            filter clicks by user_id, group by article id, sum clicks
-        '''
-        
-        user_id = ObjectId(user_id)
-
-        # clickedarticles filter by user_id, 
-        # group by articles and count clicks
-        clicked = db[self.clicked_articles].find({'user_id': user_id})
-        clicked = pd.DataFrame(await clicked.to_list(length))
-        clicked = clicked.drop(columns=['_id', 'user_id'])
-        clicked['clicks'] = 1
-        clicked = pd.DataFrame(clicked.groupby(['article_id']).sum())
-        clicked = clicked.reset_index()
-        
-        # lovedarticles filter by user_id, 
-        loved = db[self.loved_articles].find({'user_id': user_id})
-        loved = pd.DataFrame(await loved.to_list(length))
-        loved = loved.drop(columns=['_id', 'user_id'])
-        
-        # combine articles in loved and clicked
-        article_ids = []
-        article_ids.extend(clicked['article_id'].tolist())
-        article_ids.extend(loved['article_id'].tolist())
-
-        article_ids = list(set(article_ids))
-
-        # get articles loved or clicked by the user
-        filter = {
-            '_id': {'$in': article_ids}
-        }
-        
-        articles = await self.get_multi(db, length, filter=filter, loved_by_user_id=str(user_id))
-        articles = pd.DataFrame(articles)
-        
-        # rename clicked article_id col to _id
-        clicked = clicked.rename(columns={'article_id':'_id'})
-
-        # join clicked counts
-        joined = articles.join(clicked.set_index('_id'), on='_id')
-
-        # convert NaN to 0
-        joined['clicks'] = joined['clicks'].fillna(0).astype('int')
-
-        # objectid to string
-        joined['_id'] = joined['_id'].astype('str')
-
-        return joined.to_dict('records')
-        
-
-
 article = CRUDArticle('articles')
-
-# def get_articles():
-#     articles = fetch
-
-# # not sure kung str ang id
-# def get_article_by_id(id: str):
-#     article = 
-
-#     return article
-
-# def update_article_loves_by_id(id: str):
-#     article
-
-#     if fail:
-#         return 0
-    
-#     return 1
-
-# def update_article_clicked_by_id
-
-# def update_article_clicks_by_id

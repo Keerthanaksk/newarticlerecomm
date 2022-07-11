@@ -3,7 +3,7 @@ import os
 
 from api import crud
 from api.core import jwt
-from api.schemas import ShowUser, UserCreate
+from api.schemas import ShowUser, UserCreate, ShowUserInteractions
 from api.db.mongodb import get_database
 
 from fastapi import APIRouter, Depends
@@ -44,3 +44,26 @@ async def get_current_user(
     current_user: ShowUser = Depends(jwt.current_user)
 ):
     return current_user
+
+# @router.get("/interactions", response_model=List[ShowUserInteractions])
+@router.get("/interactions")
+async def interactions(
+    limit: int = 100,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    # current_user: ShowUser = Depends(jwt.current_user)
+):
+    '''
+        See per user interactions
+
+        Note:
+        Doesnt include every link sent but only those that the user interacted with
+    '''
+
+    interactions = await crud.user.get_interactions(
+        db, 
+        length=limit
+    )
+
+    # articles = await crud.article.articles_stats(db, limit, user_id=current_user['_id'])
+
+    return interactions

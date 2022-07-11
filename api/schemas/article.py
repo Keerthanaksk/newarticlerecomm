@@ -1,9 +1,9 @@
 from typing import Optional
-
-import click
 from pydantic import BaseModel
-from api.schemas.base_class import PKModel
 from bson import ObjectId
+from datetime import datetime
+
+from api.schemas.base_class import PKModel
 
 class ArticleBase:
     link: Optional[str]
@@ -41,3 +41,10 @@ class CreateArticleInteraction(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+
+class ShowArticleInteractions(BaseModel):
+    # article_id: str
+    link: str
+    loved: bool
+    clicks: int
+    date_recommended: datetime

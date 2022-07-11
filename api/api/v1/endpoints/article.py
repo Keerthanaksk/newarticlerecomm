@@ -1,14 +1,13 @@
 from copyreg import constructor
-import logging
 from typing import Optional, List, Union
 
 from api.crud import article
 from api.db.mongodb import get_database
-from api.schemas import ShowArticle, ShowUser, ArticleStats
+from api.schemas import ShowArticle, ShowUser
 from api import crud
 from api.core import jwt
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from fastapi_jwt_auth import AuthJWT
 
@@ -81,20 +80,4 @@ async def click_by_link(
     )
     
     return clicked
-
-
-
-@router.post("/articles-stats", response_model=List[ArticleStats])
-async def articles_stats(
-    limit: int = 100,
-    db: AsyncIOMotorDatabase = Depends(get_database),
-    current_user: ShowUser = Depends(jwt.current_user)
-):
-    '''
-        See stats of articles read(clicked Read more) and loved by the user
-    '''
-
-    articles = await crud.article.articles_stats(db, limit, user_id=current_user['_id'])
-
-    return articles
 
