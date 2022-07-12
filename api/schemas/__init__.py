@@ -1,13 +1,10 @@
 from api.schemas.article import (
     ShowArticle,
-    ArticleCreate,
-    ArticleStats,
-    CreateArticleInteraction,
-    ShowArticleInteractions
+    ShowArticleInteraction,
+    ShowTopics
 )
 
 from api.schemas.user import (
     ShowUser,
     UserCreate,
-    ShowUserInteractions
 )

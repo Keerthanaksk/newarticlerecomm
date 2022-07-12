@@ -1,38 +1,47 @@
-from tokenize import group
 from typing import Union
 from bson import ObjectId
-import pandas as pd
 
 from fastapi import HTTPException
 
 from api.crud import CRUDBase
-from api.schemas import CreateArticleInteraction
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 class CRUDArticle(CRUDBase):
-    
-    # association collections
-    # loved_articles = 'lovedArticles'
-    # clicked_articles = 'clickedArticles'
-    articleInteractions = 'articleInteractions'
 
-    async def get_by_link(self, db, link: str, user_id: Union[str, None] = None):
+    async def get_by_link(self, db: AsyncIOMotorDatabase, link: str, user_id: Union[str, None] = None):
+        '''
+            Working but not desired output
+
+            Returns a list of single item containing the article
+        '''
+        user_id = ObjectId(user_id)
         collection = db[self.collection]
 
-        article = await collection.find_one({'link': link})
-        # loves = await self.count_loves(db, link)
-        
+        try:
+            article = await collection.find_one(
+                {
+                    '_id': user_id, 
+                    'recommendations.link': link
+                },
+                {
+                    'recommendations.$': 1
+                }
+            )
+        except Exception as e:
+            print(e)
+            raise HTTPException(
+                status_code=500, 
+                detail="An error occured while finding the article."
+            )
+            
         if not article:
             raise HTTPException(
                     status_code=404, 
                     detail="Article not found."
                 )
         
-        result = {**article}
-        
-        if user_id:
-            result['loved'] = await self.is_loved_by_user(db, id, user_id=user_id)
+        result = article['recommendations'][0]
 
         return result
 
@@ -40,6 +49,8 @@ class CRUDArticle(CRUDBase):
 
     async def get_multi(self, db: AsyncIOMotorDatabase, length, filter=None, user_id=None):
         '''
+        Get all articles recommended
+
         Returns a list of dictionary containing:
             id: ObjectId,
             link: str
@@ -48,82 +59,63 @@ class CRUDArticle(CRUDBase):
             summary: str
             total_loves: int
             total_clicks: int
-            loved: Optional(bool)
-
         '''
-        
-        # fields to show
-        project = {
-            '$project': 
-            {
-                'link': 1,
-                'title': 1,
-                'topic': 1,
-                'summary': 1,
-                'total_loves': 
-                {
-                    '$size': 
-                    {
-                        '$filter':
-                        {
-                            'input': '$user_interactions',
-                            'as': 'interactions',
-                            'cond': { '$eq': ['$$interactions.loved', True]}
-                        }
-
-                    }
-                },
-                'total_clicks': {'$sum': '$user_interactions.clicks'}
-            }
-        }
-
-        # adds a field to indicate if article is loved by the given user
-        if user_id:
-            user_id = ObjectId(user_id)
-            
-            project['$project']['loved'] = {
-                '$cond': 
-                [
-                    {'$in': [user_id, '$user_interactions.user_id']}, True, False
-                ]
-            }
 
         try:
-            result = db[self.collection].aggregate(
-                [
-                    # filter 
+            recommendations = db[self.collection].aggregate([
+                {
+                    '$unwind': '$recommendations'
+                },
+                {
+                    '$replaceRoot': 
                     {
-                        '$match': filter if filter else {}
-                    },
-                    
-                    # Joining with articleInteractions collection
+                        'newRoot': '$recommendations'
+                    }
+                },
+                {
+                    '$group': 
                     {
-                        '$lookup': 
+                        '_id': 
                         {
-                            'from': self.articleInteractions,
-                            'localField': 'link',
-                            'foreignField': 'link',
-                            'as': 'user_interactions'
+                            'link': '$link',
+                            'topic': '$topic',
+                            'title': '$title',
+                            'summary': '$summary' 
                         },
-                    },
+                        'total_loves': 
+                        {
+                            '$sum': 
+                            {
+                                '$cond': ['$loved', 1, 0]
+                            }
+                        },
+                        'total_clicks': {'$sum': '$clicks'}
+                    }
+                },
+                {
+                    '$project':
+                    {
+                        '_id': 0,
+                        'link': '$_id.link',
+                        'topic': '$_id.topic',
+                        'title': '$_id.title',
+                        'summary': '$_id.summary',
+                        'total_loves': 1,
+                        'total_clicks': 1,
+                    }
+                }
+            ])
 
-                    # fields to show
-                    project
-                ]
-            )
-            
-            result = await result.to_list(length)
+            recommendations = await recommendations.to_list(length)
 
-            return result
-
-        except Exception as e:
-            
+            return recommendations
+        
+        except:
             raise HTTPException(
-                status_code=500, 
-                detail="An error occured while getting articles."
+                status_code=404, 
+                detail="An error occured while fetching articles."
             )
         
-
 
 
     async def love_by_link(
@@ -134,76 +126,38 @@ class CRUDArticle(CRUDBase):
     ):
         '''
             Love/Unlove an article depending on the existing interaction
+
         '''
         
         user_id = ObjectId(user_id)
-        collection = db[self.articleInteractions]
-
-        # check if article exists
-        article = await self.get_by_link(db, link)
-
-        # get the interaction
-        query = {'user_id': user_id, 'link': link}
-        article_interaction = await collection.find_one(
-            query
-        )
         
-        # setting function
-        set_loved = lambda b : collection.update_one(
-            query,
-            {'$set': {'loved': b}}
-        )
-        
+        # get article to obtain 'loved' status
+        article = await self.get_by_link(db, link, user_id=str(user_id))
+
+        collection = db[self.collection]
+
+        # update love
         try:
-            if article_interaction:
-                # if interaction exists and loved -> False
-                if article_interaction.get('loved'):
-                    await set_loved(False)
-
-                # else if it exists and not loved -> True
-                else:
-                    await set_loved(True)
-
-            else:
-                # if it doesnt exist, create the loved interaction
-                await collection.insert_one(
-                    CreateArticleInteraction(
-                        link=link,
-                        user_id=user_id,
-                        loved=True,
-                        clicks=0
-                    ).dict()
+            result = await collection.update_one(
+                    {
+                        '_id': user_id, 
+                        'recommendations.link': link
+                    },
+                    {'$set': {'recommendations.$.loved': not article['loved']}}
                 )
-
-            return True
-        except Exception as e:
-            print(e)
+        except:
             raise HTTPException(
                 status_code=500, 
-                detail="An error occured while updating the love interaction."
+                detail="An error occured while updating loves."
             )
 
-
-
-    # async def count_loves(self, db: AsyncIOMotorDatabase, id: str):
-    #     id = ObjectId(id)
-
-    #     loves = await db[self.loved_articles].count_documents({'article_id': id})
+        if not result.modified_count:
+            raise HTTPException(
+                status_code=404, 
+                detail="No article found for updating 'loved'."
+            )
         
-    #     return loves
-
-
-
-    # async def is_loved_by_user(self, db: AsyncIOMotorDatabase, id: str, user_id=None):
-    #     id = ObjectId(id)
-    #     user_id = ObjectId(user_id)
-
-    #     loved = await db[self.loved_articles].find_one({'article_id': id, 'user_id': user_id})
-        
-    #     if not loved:
-    #         return False
-
-    #     return True
+        return True
 
 
 
@@ -217,41 +171,85 @@ class CRUDArticle(CRUDBase):
             Increment/Create the click interaction of an article
         '''
         user_id = ObjectId(user_id)
-        collection = db[self.articleInteractions]
+        collection = db[self.collection]
 
-        # check if article exists
-        article = await self.get_by_link(db, link)
-
-        # get the interaction
-        query = {'user_id': user_id, 'link': link}
-        article_interaction = await collection.find_one(
-            query
-        )
-
+        # increment clicks
         try:
-            if article_interaction:
-                # if interaction exists, inc clicks
-                await collection.update_one(
-                    query,
-                    {'$inc': {'clicks': 1}}
+            result = await collection.update_one(
+                    {
+                        '_id': user_id, 
+                        'recommendations.link': link
+                    },
+                    {'$inc': {'recommendations.$.clicks': 1}}
                 )
-                
-            else:
-                # if it doesnt exist, create the interaction
-                await collection.insert_one(
-                    CreateArticleInteraction(
-                        link=link,
-                        user_id=user_id,
-                        loved=False,
-                        clicks=1
-                    ).dict()
-                )
-
-            return True
         except:
             raise HTTPException(
                 status_code=500, 
-                detail="An error occured while updating the click interaction."
+                detail="An error occured while updating clicks."
             )
 
-article = CRUDArticle('articles')
+        if not result.modified_count:
+            raise HTTPException(
+                status_code=404, 
+                detail="No article found for updating 'clicks'."
+            )
+        
+        return True
+
+
+
+    async def get_topics(
+        self,
+        db: AsyncIOMotorDatabase,
+        length: int,
+        user_id: str
+    ):
+        '''
+            Get topics of articles recommended for the user
+        '''
+        user_id = ObjectId(user_id)
+
+        try:
+            topics = db[self.collection].aggregate([
+                {
+                    '$match':
+                    {
+                        '_id': user_id
+                    }
+                },
+                {
+                    '$unwind': '$recommendations'
+                },
+                {
+                    '$replaceRoot': 
+                    {
+                        'newRoot': '$recommendations'
+                    }
+                },
+                {
+                    '$group': 
+                    {
+                        '_id': '$topic'
+                    }
+                }
+            ])
+
+            topics = await topics.to_list(length)
+            
+            topics_list = {'topics': []}
+
+            for t in topics:
+                topics_list['topics'].append(t['_id'])
+
+            return topics_list
+        
+        except Exception as e:
+            raise HTTPException(
+                status_code=404, 
+                detail="An error occured while fetching topics."
+            )
+        
+
+      
+
+article = CRUDArticle('users')

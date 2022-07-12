@@ -1,7 +1,6 @@
 from copyreg import constructor
 from typing import Optional, List, Union
 
-from api.crud import article
 from api.db.mongodb import get_database
 from api.schemas import ShowArticle, ShowUser
 from api import crud
@@ -10,6 +9,7 @@ from api.core import jwt
 from fastapi import APIRouter, Depends
 
 from fastapi_jwt_auth import AuthJWT
+from api.schemas.article import ShowTopics
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -81,3 +81,22 @@ async def click_by_link(
     
     return clicked
 
+
+
+@router.get('/topics', response_model=ShowTopics)
+async def get_topics(
+    limit: int = 100,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: ShowUser = Depends(jwt.current_user)
+):
+    '''
+    Get topics of articles recommended for the user
+    '''
+
+    topics = await crud.article.get_topics(
+        db,
+        length=limit,
+        user_id=current_user['_id']
+    )
+
+    return topics

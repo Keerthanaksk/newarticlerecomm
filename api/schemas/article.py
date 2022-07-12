@@ -1,50 +1,27 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 from bson import ObjectId
 from datetime import datetime
 
 from api.schemas.base_class import PKModel
 
-class ArticleBase:
+class ArticleBase(BaseModel):
     link: Optional[str]
     title: Optional[str]
     topic: Optional[str]
     summary: Optional[str]
-    loves: Optional[int]
-    loved: Optional[bool]
+    total_loves: Optional[int]
+    total_clicks: Optional[int]
 
-class ShowArticle(ArticleBase, PKModel):
-    link: str
-    title: str
-    topic: str
-    summary: str
-    total_loves: int
-    total_clicks: int
-
-class ArticleCreate(ArticleBase):
+class ShowArticle(ArticleBase):
     pass
 
-class ArticleStats(ArticleBase, PKModel):
-    link: str
-    title: str
-    topic: str
-    summary: str
-    loves: int
-    loved: Optional[bool]
-    clicks: int
-
-class CreateArticleInteraction(BaseModel):
-    link: str
-    user_id: ObjectId
-    loved: bool
-    clicks: int = 0
-
-    class Config:
-        arbitrary_types_allowed = True
-
-class ShowArticleInteractions(BaseModel):
+class ShowArticleInteraction(BaseModel):
     # article_id: str
     link: str
     loved: bool
     clicks: int
     date_recommended: datetime
+
+class ShowTopics(BaseModel):
+    topics: List[str]
