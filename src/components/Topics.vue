@@ -38,13 +38,29 @@
         }
       },
 
+      created() {
+        fetch(
+            this.$store.state.API_BASE_URL + 'article/topics',
+            {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Credetials": "true",
+                },
+                credentials: 'include',
+            }
+        )    
+        .then(res => res.json()).then(data => {
+            this.topics = data.topics.sort()
+        })
+        .catch(res => console.log(res))
+      },
+
 
 
       data() {
         return {
-          topics: [
-            'Machine Learning and AI Ethics', 'Finance and Business', 'Power and Energy', 'Blockchain', 'Space News Research'
-            ],
+          topics: [],
           activeIndex: null
         }
       }

@@ -1,16 +1,17 @@
 <template>
     
     <div class="card shadow border-0">
-        <!-- <img :src="randomPic" class="card-img-top"> -->
-            <h5 class="card-header">{{this.title}}</h5>
+        <img :src="randomPic" class="card-img-top">
+        <!-- <h5 class="card-header">{{this.title}}</h5> -->
         <div class="card-body">
             <div class="d-flex">
                 
                 <div class="d-flex flex-column align-items-center align-self-center">
                     <i class="bi bi-heart-fill text-danger" @click="love"></i>
-                    <span>{{this.loves}}</span>
+                    <!-- <span>{{this.loves}}</span> -->
                 </div>
                 <div class="ms-4">
+                    <h5 class="card-title">{{this.title}}</h5>
                     <p class="card-text">{{this.summary}}</p>
                     <a :href="this.link" target="_blank" class="small text-muted align-self-end" @click="linkClick">Read more</a>
                 </div>
@@ -49,10 +50,18 @@
             this.loved = this.isLoved
         },
 
+        computed: {
+            randomPic() {
+                return `https://picsum.photos/seed/` + Math.floor(Math.random() * 100) + `/600/400`
+            }
+        },
+
         methods: {
             async linkClick() {
                 await fetch(
-                    this.$store.state.API_BASE_URL + `article/click/${this.id}`,
+                    this.$store.state.API_BASE_URL 
+                    + 'article/click/?'
+                    + new URLSearchParams({link: this.link}),
                     {
                         method: 'POST',
                         headers: {
@@ -69,7 +78,9 @@
             async love() {
 
                 // if loved already, req to unlove
-                const url = this.$store.state.API_BASE_URL + (this.loved ? `article/unlove/${this.id}` : `article/love/${this.id}`)
+                const url = this.$store.state.API_BASE_URL 
+                    + 'article/love?' 
+                    + new URLSearchParams({link: this.link})
 
                 await fetch(
                     url,
@@ -83,8 +94,7 @@
                     }
                 )
                 .then(res => res.json()).then(data => {
-                    this.loves = data['loves']
-                    this.loved = data['loved']
+                    console.log(data)
 
                 })
                 .catch(res => console.log(res))

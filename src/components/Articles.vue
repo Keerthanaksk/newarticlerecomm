@@ -9,13 +9,12 @@
         <div class="d-grid gap-5 articles p-3 pb-5" v-if="this.topic">
             <Article
                 v-for="article in this.articles"
-                :key="article['_id']"
-                :id="article['_id']"
+                :key="article['link']"
+                :id="article['link']"
                 :link="article.link"
                 :title="article.title"
                 :summary="article.summary"
-                :loveCounts="article.loves"
-                :isLoved="article.loved"
+                :loveCounts="article.total_loves"
             />
         </div>
     </div>
