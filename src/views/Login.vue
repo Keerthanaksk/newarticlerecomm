@@ -9,8 +9,8 @@
                         <h6 class="card-subtitle mb-4 text-muted text-center">Intelligent Newsletter by UnionBank and Aboitiz</h6>
                         
                         <div class="mb-3">
-                            <label class="form-label">Username</label>
-                            <input type="text" class="form-control" v-model="username">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" v-model="email">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Password</label>
@@ -35,7 +35,7 @@
         name: 'Login',
         data() {
             return {
-                username: '',
+                email: '',
                 password: ''
             }
         },
@@ -43,7 +43,7 @@
         methods: {
             async login() {
                 var bodyFormData = new FormData();
-                bodyFormData.append('username', this.username);
+                bodyFormData.append('username', this.email);
                 bodyFormData.append('password', this.password);
                 
                 await axios({
@@ -55,7 +55,7 @@
                 })
                 .then( res => {
                         
-                        this.$store.commit('login', res.data['username'])
+                        this.$store.commit('login', res.data['email'])
                         this.$router.push('/')
                         
                     }

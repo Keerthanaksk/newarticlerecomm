@@ -23,14 +23,49 @@ const router = createRouter({
     routes
 })
 
-router.beforeEach( (to,) => {
-    const authenticated = store.state.authenticated 
+async function getCurrentUser() {
+    return (
+        await fetch(
+            store.state.API_BASE_URL + `user/current-user`,
+            {
+                method: 'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Credetials": "true",
+                },
+                credentials: 'include',
+            }
+        )
+        .then(async res => 
+            {
+                if(res.status == 200) {
+                    const jsonValue = await res.json()
+                    return Promise.resolve(jsonValue)
+                } else {
+                    return Promise.reject('Error')
+                }
+            }
+        )
+        .then(res => res.email)
+        .catch(() => '')
+    )
+}
+
+router.beforeEach( async (to,) => {
     
-    // Redir to login if not authenticated and tries to access other routes
-    // else if prevent accessing Login when authenticated
-    if (!authenticated && to.name !== 'Login' ) {
-        return {name: 'Login'}
-    } else if (authenticated && to.name == 'Login') {
+    
+    const currentUserEmail = await getCurrentUser()
+
+    const loggedIn = (currentUserEmail === store.state.email)
+    
+    if(!loggedIn) {
+        // Redir to login if not authenticated 
+        // and is trying to access other routes
+        if (to.name !== 'Login') {
+            return {name: 'Login'}
+        }
+    } else if (loggedIn && to.name == 'Login'){
+        // prevent accessing Login route when authenticated
         return {name: 'Home'}
     }
     

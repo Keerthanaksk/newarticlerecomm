@@ -5,7 +5,7 @@ from api.db.mongodb import get_database
 from fastapi import Depends, HTTPException
 
 from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import JWTDecodeError
+# from fastapi_jwt_auth.exceptions import MissingTokenError
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -13,15 +13,14 @@ async def current_user(
     db: AsyncIOMotorDatabase = Depends(get_database),
     Authorize: AuthJWT = Depends()
 ) -> ShowUser:
-    
     try:
         Authorize.jwt_required()
-    except JWTDecodeError as err:
-        status_code = err.status_code
-        if err.message == "Signature verification failed":
-            status_code = 401
+    except Exception as e:
+        
+        status_code = e.status_code
+        
         raise HTTPException(status_code=status_code, detail="User not logged in")
-
+    
     user = await crud.user.get_by_id(db, id=Authorize.get_jwt_subject())
 
     if not user:
