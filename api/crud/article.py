@@ -1,3 +1,5 @@
+from os import link
+from pprint import pprint
 from typing import Union
 from bson import ObjectId
 
@@ -47,10 +49,10 @@ class CRUDArticle(CRUDBase):
 
 
 
-    async def get_multi(self, db: AsyncIOMotorDatabase, length, filter=None, user_id=None):
+    async def get_multi(self, db: AsyncIOMotorDatabase, length, topic=None, user_id=None):
         '''
-        Get all articles recommended
-
+        Get all articles recommended filtered by topic (optional)
+        
         Returns a list of dictionary containing:
             id: ObjectId,
             link: str
@@ -60,18 +62,39 @@ class CRUDArticle(CRUDBase):
             total_loves: int
             total_clicks: int
         '''
+        
+        links = []
+        
+        # get user's reco links
+        if user_id:
+            links = (await self.get_links(db, length=length, user_id=user_id))['links']
 
         try:
             recommendations = db[self.collection].aggregate([
+                # unravel all recos
                 {
                     '$unwind': '$recommendations'
                 },
+
+                # filter by topic, if given
+                {
+                    '$match': {'recommendations.topic': topic} if topic else {}
+                },
+
+                # filter by links sent to user's recos, if given
+                {
+                    '$match': {'recommendations.link': {'$in': links}} if user_id else {}
+                },
+                
+                # bring embdded recos to top level
                 {
                     '$replaceRoot': 
                     {
                         'newRoot': '$recommendations'
                     }
                 },
+                
+                # reduce only to unique recos
                 {
                     '$group': 
                     {
@@ -92,6 +115,8 @@ class CRUDArticle(CRUDBase):
                         'total_clicks': {'$sum': '$clicks'}
                     }
                 },
+
+                # show specific fields
                 {
                     '$project':
                     {
@@ -110,9 +135,10 @@ class CRUDArticle(CRUDBase):
 
             return recommendations
         
-        except:
+        except Exception as e:
+            print(e)
             raise HTTPException(
-                status_code=404, 
+                status_code=500, 
                 detail="An error occured while fetching articles."
             )
         
@@ -242,6 +268,59 @@ class CRUDArticle(CRUDBase):
                 topics_list['topics'].append(t['_id'])
 
             return topics_list
+        
+        except Exception as e:
+            raise HTTPException(
+                status_code=404, 
+                detail="An error occured while fetching topics."
+            )
+
+
+
+    async def get_links(
+        self,
+        db: AsyncIOMotorDatabase,
+        length: int,
+        user_id: str
+    ):
+        '''
+            Get links of articles recommended for the user
+        '''
+        user_id = ObjectId(user_id)
+
+        try:
+            links = db[self.collection].aggregate([
+                {
+                    '$match':
+                    {
+                        '_id': user_id
+                    }
+                },
+                {
+                    '$unwind': '$recommendations'
+                },
+                {
+                    '$replaceRoot': 
+                    {
+                        'newRoot': '$recommendations'
+                    }
+                },
+                {
+                    '$group': 
+                    {
+                        '_id': '$link'
+                    }
+                }
+            ])
+
+            links = await links.to_list(length)
+            
+            links_list = {'links': []}
+
+            for link in links:
+                links_list['links'].append(link['_id'])
+            
+            return links_list
         
         except Exception as e:
             raise HTTPException(

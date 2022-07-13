@@ -1,5 +1,5 @@
-from copyreg import constructor
-from typing import Optional, List, Union
+from typing import List, Union
+from bson import ObjectId
 
 from api.db.mongodb import get_database
 from api.schemas import ShowArticle, ShowUser
@@ -29,13 +29,8 @@ async def get_articles(
     Authorize.jwt_optional()
 
     user_id = Authorize.get_jwt_subject()
-
-    filter = {}
     
-    if topic:
-        filter['topic'] = topic
-    
-    articles = await crud.article.get_multi(db, length=limit, filter=filter, user_id=user_id)
+    articles = await crud.article.get_multi(db, length=limit, topic=topic, user_id=user_id)
     
     return articles
 
