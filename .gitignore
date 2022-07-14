@@ -4,6 +4,7 @@ node_modules
 __pycache__
 .env
 api/feed.py
+job.py
 
 # etc
 todo.txt

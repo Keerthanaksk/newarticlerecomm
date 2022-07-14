@@ -8,7 +8,7 @@
     <div class="row">
       <div class="col-3">
         <div class="d-flex flex-column justify-content-between">
-          <Topics @select-topic="selectTopic"/>
+          
           <div class="card text-white bg-secondary mt-5">
             <div class="card-body shadow">
               <p>Welcome to UnionBank and Aboitiz newsletter powered by AI.</p>
@@ -23,6 +23,7 @@
 
             </div>
           </div>
+          <Topics @select-topic="selectTopic"/>
           <div class="d-grid gap-2 mt-5">
             <Logout/>
           </div>

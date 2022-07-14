@@ -47,7 +47,9 @@ async function getCurrentUser() {
             }
         )
         .then(res => res.email)
-        .catch(() => '')
+        .catch(() => {
+            return {name: 'Login'}
+        })
     )
 }
 
