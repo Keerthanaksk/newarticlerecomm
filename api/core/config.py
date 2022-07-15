@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     PROJECT_DESC: str = """UnionBank articles recommender prototype"""
     PROJECT_VERSION: str = "1.0.0"
 
-    SECRET_KEY: str = secrets.token_urlsafe(32) 
+    SECRET_KEY: str = os.environ.get('SECRET_KEY', 'secret')
     MONGO_URL: str = os.environ.get('MONGO_URL', 'mongodb://localhost:27017/')
     MONGO_DB: str = os.environ.get('MONGO_DB', 'unionbank')
 
@@ -24,7 +24,6 @@ class Settings(BaseSettings):
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 60 # 1 hour
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 1 week
-
 
 class DevelopmentSettings(Settings):
     pass

@@ -2,7 +2,7 @@ from typing import List, Optional
 import os
 
 from api import crud
-from api.core import jwt
+from api.core import jwt, config
 from api.schemas import ShowUser, UserCreate
 from api.db.mongodb import get_database
 
@@ -11,6 +11,9 @@ from fastapi import APIRouter, Depends
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 router = APIRouter()
+@router.get('/test')
+async def test():
+    return {'msg': config.settings.SECRET_KEY}
 
 @router.get('/', response_model=List[ShowUser])
 async def get_users(
