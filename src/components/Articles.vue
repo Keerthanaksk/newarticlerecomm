@@ -24,6 +24,7 @@
 <script>
 
     import Article from './Article.vue'
+    import axios from 'axios'
 
     export default {
         name: 'Articles',
@@ -35,26 +36,43 @@
         components: { Article },
 
         watch: {
-            topic(newTopic) {
-                fetch(
-                    this.$store.state.API_BASE_URL + 'article?' + new URLSearchParams(
-                        {
-                            topic: newTopic
-                        }
-                    ),
+            async topic(newTopic) {
+                
+                await axios.get(
+                    this.$store.state.API_BASE_URL + 'article?',
+                    null,
                     {
-                        method: 'GET',
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Access-Control-Allow-Credetials": "true",
-                        },
-                        credentials: 'include',
+                        params: { topic: newTopic},
+                        withCredentials: true,
                     }
-                )    
-                .then(res => res.json()).then(data => {
-                    this.articles = data
-                })
-                .catch(res => console.log(res))
+                ).then( res => {
+                    console.log(res)
+                    }
+                ).catch(res => console.log(res))
+                // await fetch(
+                //     this.$store.state.API_BASE_URL + 'article?' + new URLSearchParams(
+                //         {
+                //             topic: newTopic
+                //         }
+                //     ),
+                //     {
+                //         method: 'GET',
+                //         headers: {
+                //             "Content-Type": "application/json",
+                //             "Access-Control-Allow-Credetials": "true",
+                //         },
+                //         credentials: 'include',
+                //         // mode: 'no-cors'
+                //     }
+                // )    
+                // .then(res => {
+                //     res.json()
+                // }).then(data => {
+                //     this.articles = data
+                // })
+                // .catch(res => {
+                //     console.log(res)
+                // })
             }
         },
 
