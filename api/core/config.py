@@ -28,12 +28,12 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 1 week
 
 class DevelopmentSettings(Settings):
-    pass
+    authjwt_cookie_secure: bool = False
 
 
 
 class ProductionSettings(Settings):
-    pass
+    authjwt_cookie_secure: bool = True
 
 
 
