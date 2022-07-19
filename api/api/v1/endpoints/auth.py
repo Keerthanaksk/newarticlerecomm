@@ -68,4 +68,4 @@ async def test(
 	Print an env here
 	"""
 
-	return {'TEST_ENV': os.environ.get('test_env')}
+	return {'TEST_ENV': os.environ.get('TEST_ENV')}
