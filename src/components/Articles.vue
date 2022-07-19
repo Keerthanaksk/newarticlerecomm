@@ -39,7 +39,7 @@
             async topic(newTopic) {
                 
                 await axios.get(
-                    this.$store.state.API_BASE_URL + 'article?',
+                    this.$store.state.API_BASE_URL + 'article',
                     {
                         params: { topic: newTopic},
                         withCredentials: true,
