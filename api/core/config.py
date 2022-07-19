@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     # Disable CSRF Protection for this example. default is True
     AUTHJWT_COOKIE_CSRF_PROTECT: bool = False
 
-    authjwt_cookie_samesite = None
+    authjwt_cookie_samesite: str = 'none'
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 60 # 1 hour
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 1 week
