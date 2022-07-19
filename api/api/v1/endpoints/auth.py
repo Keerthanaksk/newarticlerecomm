@@ -1,4 +1,5 @@
 from datetime import timedelta
+import os
 
 from api import crud
 from api.core.config import settings
@@ -58,3 +59,13 @@ async def logout(
 	Authorize.unset_jwt_cookies()
 
 	return {'msg':'Successfully logged out.'}
+
+@router.get('/test')
+async def test(
+	
+):
+	"""
+	Print an env here
+	"""
+
+	return {'TEST_ENV': os.environ.get('test_env')}
