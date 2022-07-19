@@ -40,13 +40,12 @@
                 
                 await axios.get(
                     this.$store.state.API_BASE_URL + 'article?',
-                    null,
                     {
                         params: { topic: newTopic},
                         withCredentials: true,
                     }
                 ).then( res => {
-                    console.log(res)
+                        this.articles = res.data
                     }
                 ).catch(res => console.log(res))
                 // await fetch(

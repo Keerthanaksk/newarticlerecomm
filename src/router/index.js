@@ -5,6 +5,8 @@ import store from '../store'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 
+import axios from 'axios'
+
 const routes = [
     {
         path: '/',
@@ -25,31 +27,45 @@ const router = createRouter({
 
 async function getCurrentUser() {
     return (
-        await fetch(
+        await axios.get(
             store.state.API_BASE_URL + `user/current-user`,
             {
-                method: 'GET',
                 headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Credetials": "true",
+                    "Access-Control-Allow-Credetials": "true"
                 },
-                credentials: 'include',
+                withCredentials: true
             }
+
         )
-        .then(async res => 
-            {
-                if(res.status == 200) {
-                    const jsonValue = await res.json()
-                    return Promise.resolve(jsonValue)
-                } else {
-                    return Promise.reject('Error')
-                }
-            }
-        )
-        .then(res => res.email)
+        .then(res => res.data.email)
         .catch(() => {
             return {name: 'Login'}
         })
+        // await fetch(
+        //     store.state.API_BASE_URL + `user/current-user`,
+        //     {
+        //         method: 'GET',
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //             "Access-Control-Allow-Credetials": "true",
+        //         },
+        //         credentials: 'include',
+        //     }
+        // )
+        // .then(async res => 
+        //     {
+        //         if(res.status == 200) {
+        //             const jsonValue = await res.json()
+        //             return Promise.resolve(jsonValue)
+        //         } else {
+        //             return Promise.reject('Error')
+        //         }
+        //     }
+        // )
+        // .then(res => res.email)
+        // .catch(() => {
+        //     return {name: 'Login'}
+        // })
     )
 }
 
