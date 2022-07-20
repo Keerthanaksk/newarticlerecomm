@@ -79,7 +79,7 @@
 
                 // if loved already, req to unlove
                 const url = this.$store.state.API_BASE_URL 
-                    + 'article/love?' 
+                    + 'article/love/?' 
                     + new URLSearchParams({link: this.link})
 
                 await fetch(
