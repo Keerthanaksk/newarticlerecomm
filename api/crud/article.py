@@ -21,15 +21,40 @@ class CRUDArticle(CRUDBase):
         collection = db[self.collection]
 
         try:
-            article = await collection.find_one(
+            article = collection.aggregate([
                 {
-                    '_id': user_id, 
-                    'recommendations.link': link
+                    '$match':
+                    {
+                        '_id': user_id,
+                        'recommendations.link': link
+                    }
                 },
                 {
-                    'recommendations.$': 1
+                    '$unwind': '$recommendations'
+                },
+                {
+                    '$match':
+                    {
+                        'recommendations.link': link
+                    }
+                },
+                {
+                    '$project':
+                    {
+                        'recommendations': 1
+                    }
                 }
-            )
+            ])
+            article = await article.to_list(100)
+            # article = await collection.find_one(
+            #     {
+            #         '_id': user_id, 
+            #         'recommendations.link': link
+            #     },
+            #     {
+            #         'recommendations.$': 1
+            #     }
+            # )
         except Exception as e:
             print(e)
             raise HTTPException(
@@ -43,7 +68,7 @@ class CRUDArticle(CRUDBase):
                     detail="Article not found."
                 )
         
-        result = article['recommendations'][0]
+        result = article[0]['recommendations']
 
         return result
 
