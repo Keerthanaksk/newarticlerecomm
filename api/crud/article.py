@@ -171,10 +171,11 @@ class CRUDArticle(CRUDBase):
                     },
                     {'$set': {'recommendations.$.loved': not article['loved']}}
                 )
-        except:
+            
+        except Exception as e:
             raise HTTPException(
                 status_code=500, 
-                detail="An error occured while updating loves."
+                detail="An error occured while updating loves." + str(e)
             )
 
         if not result.modified_count:
