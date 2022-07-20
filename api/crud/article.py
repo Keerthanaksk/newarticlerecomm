@@ -164,6 +164,7 @@ class CRUDArticle(CRUDBase):
 
         # update love
         try:
+            
             result = await collection.update_one(
                     {
                         '_id': user_id, 
@@ -175,7 +176,7 @@ class CRUDArticle(CRUDBase):
         except Exception as e:
             raise HTTPException(
                 status_code=500, 
-                detail="An error occured while updating loves." + '\n' + str(e) + '\n' + str(article)
+                detail="An error occured while updating loves." + '\n' + str(e) + '\n' + str(article) + link
             )
 
         if not result.modified_count:
