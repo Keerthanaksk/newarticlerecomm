@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.get("/", response_model=List[ShowArticle])
 async def get_articles(
-    topic: Union[str, None] = None,
+    # topic: Union[str, None] = None,
     limit: int = 100,
     db: AsyncIOMotorDatabase = Depends(get_database),
     Authorize: AuthJWT = Depends()
