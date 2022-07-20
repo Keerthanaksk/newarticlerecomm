@@ -175,7 +175,7 @@ class CRUDArticle(CRUDBase):
         except Exception as e:
             raise HTTPException(
                 status_code=500, 
-                detail="An error occured while updating loves." + str(e)
+                detail="An error occured while updating loves." + '\n' + str(e) + '\n' + str(article)
             )
 
         if not result.modified_count:
