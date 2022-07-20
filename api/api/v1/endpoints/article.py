@@ -15,7 +15,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 router = APIRouter()
 
-@router.get("/", response_model=List[ShowArticle])
+@router.get("/all", response_model=List[ShowArticle])
 async def get_articles(
     # topic: Union[str, None] = None,
     limit: int = 100,
