@@ -1,6 +1,6 @@
-module.exports = {
-    devServer: {
-      proxy: 'https://articles-recommender.azurewebsites.net/'
-    }
-  }
+// module.exports = {
+//     devServer: {
+//       proxy: 'https://articles-recommender.azurewebsites.net/'
+//     }
+//   }
   
