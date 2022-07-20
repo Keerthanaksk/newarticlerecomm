@@ -32,7 +32,7 @@ jobs:
           output_location: "dist" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
         env:
-          VUE_APP_API_BASE_URL: https://wonderful-mushroom-0d403d800.1.azurestaticapps.net/
+          VUE_APP_API_BASE_URL: https://articles-recommender.azurewebsites.net/
           VUE_APP_ENV: prod
 
   close_pull_request_job:

@@ -5,6 +5,7 @@ __pycache__
 .env
 api/feed.py
 job.py
+vue.config.js
 
 # etc
 todo.txt
