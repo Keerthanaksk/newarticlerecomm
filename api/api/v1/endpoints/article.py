@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.get("/", response_model=List[ShowArticle])
 async def get_articles(
-    topic: Union[str, None] = None,
+    # topic: Union[str, None] = None,
     limit: int = 100,
     db: AsyncIOMotorDatabase = Depends(get_database),
     current_user: ShowUser = Depends(jwt.current_user)
@@ -30,6 +30,7 @@ async def get_articles(
     # Authorize.jwt_optional()
 
     user_id = current_user['_id']
+    topic = None
     
     articles = await crud.article.get_multi(db, length=limit, topic=topic, user_id=user_id)
     
