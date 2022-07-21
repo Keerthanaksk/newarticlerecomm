@@ -4,7 +4,14 @@
     <div class="container">
     
         <h1 v-if="this.topic" class="m-3 display-6">{{this.topic}}</h1>
-        <h1 v-else class="m-3 display-6">Welcome, UnionBank and Aboitiz!</h1>
+        <div v-else class="m-3">
+            <h5>Welcome UnionBank and Aboitiz to your One-stop Daily News-letter app powered by AI</h5>
+            <p class="lead">
+                The articles are recommended just for you based on your previous interest!
+                <br>
+                Stop by here, to keep up with changes in your industry and evolve with change!
+            </p>
+        </div>
         
         <div class="d-grid gap-5 articles p-3 pb-5" v-if="this.topic">
             <Article
@@ -17,6 +24,8 @@
                 :loveCounts="article.total_loves"
             />
         </div>
+        
+        
     </div>
         
 </template>

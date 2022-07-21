@@ -1,8 +1,8 @@
 <template>
     
     <div class="card shadow border-0">
-        <img :src="randomPic" class="card-img-top">
-        <!-- <h5 class="card-header">{{this.title}}</h5> -->
+        <!-- <img :src="randomPic" class="card-img-top"> -->
+        <h5 class="card-header">{{this.title}}</h5>
         <div class="card-body">
             <div class="d-flex">
                 
@@ -11,7 +11,7 @@
                     <!-- <span>{{this.loves}}</span> -->
                 </div>
                 <div class="ms-4">
-                    <h5 class="card-title">{{this.title}}</h5>
+                    <!-- <h5 class="card-title">{{this.title}}</h5> -->
                     <p class="card-text">{{this.summary}}</p>
                     <a :href="this.link" target="_blank" class="small text-muted align-self-end" @click="linkClick">Read more</a>
                 </div>

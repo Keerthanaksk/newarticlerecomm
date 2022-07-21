@@ -9,7 +9,7 @@
       <div class="col-3">
         <div class="d-flex flex-column justify-content-between">
           
-          <div class="card text-white bg-secondary mt-5">
+          <div class="card text-white bg-secondary mt-3">
             <div class="card-body shadow">
               <p>Welcome to UnionBank and Aboitiz newsletter powered by AI.</p>
               
