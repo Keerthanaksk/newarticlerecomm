@@ -367,6 +367,7 @@ class CRUDArticle(CRUDBase):
 
         try:
             topics = db[self.collection].aggregate([
+                # get recommendations of the user
                 {
                     '$match':
                     {
@@ -382,6 +383,44 @@ class CRUDArticle(CRUDBase):
                         'newRoot': '$recommendations'
                     }
                 },
+                # ### REMOVE THESE ATTRIBUTES AND THIS PIPELINE LATER 
+                {
+                    '$project':
+                    {
+                        '_id': 0,
+                        'topic': 0,
+                        'title': 0,
+                        'summary': 0,
+                        
+                    }
+                },
+                # lookup and match article deets
+                {
+                    '$lookup':
+                    {
+                        'from': 'articles',
+                        'localField': 'link',
+                        'foreignField': 'link',
+                        'as': 'details'
+                    }
+                },
+                # bring deets up 
+                {
+                    '$replaceRoot': 
+                    { 
+                        'newRoot': 
+                        { 
+                            '$mergeObjects': 
+                            [ 
+                                { 
+                                    '$arrayElemAt': [ "$details", 0 ] 
+                                }, 
+                                "$$ROOT" 
+                            ] 
+                        } 
+                    }
+                },
+                # show all unique topics
                 {
                     '$group': 
                     {
@@ -391,7 +430,7 @@ class CRUDArticle(CRUDBase):
             ])
 
             topics = await topics.to_list(length)
-            
+
             topics_list = {'topics': []}
 
             for t in topics:
