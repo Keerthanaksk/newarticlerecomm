@@ -4,6 +4,8 @@ node_modules
 __pycache__
 .env
 api/feed.py
+api/nosql.py
+api/all_recommendations.xlsx
 job.py
 vue.config.js
 
