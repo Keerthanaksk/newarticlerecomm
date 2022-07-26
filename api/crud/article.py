@@ -224,6 +224,7 @@ class CRUDArticle(CRUDBase):
                             'as': 'details'
                         }
                     },
+                    # bring deets up 
                     {
                         '$replaceRoot': 
                         { 
@@ -238,6 +239,9 @@ class CRUDArticle(CRUDBase):
                                 ] 
                             } 
                         }
+                    },
+                    {
+                        '$match': { 'topic': topic } if topic else {}
                     },
                     # include in projection the total_clicks and loved
                     # remove 'details' field
