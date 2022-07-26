@@ -203,17 +203,7 @@ class CRUDArticle(CRUDBase):
                             'newRoot': '$recommendations'
                         }
                     },
-                    # ### REMOVE THESE ATTRIBUTES AND THIS PIPELINE LATER 
-                    {
-                        '$project':
-                        {
-                            '_id': 0,
-                            'topic': 0,
-                            'title': 0,
-                            'summary': 0,
-                            
-                        }
-                    },
+                    
                     # lookup and match article deets
                     {
                         '$lookup':
@@ -290,27 +280,55 @@ class CRUDArticle(CRUDBase):
 
         collection = db[self.collection]
 
-        # update love
+
+
+        # update for user's recommendation
         try:
-            
-            result = await collection.update_one(
+            recommendation = await collection.update_one(
                     {
                         '_id': user_id, 
                         'recommendations.link': link
                     },
-                    {'$set': {'recommendations.$.loved': not article['loved']}}
+                    #invert current value
+                    {'$set': {'recommendations.$.loved': not article['loved']}} 
                 )
             
         except Exception as e:
             raise HTTPException(
                 status_code=500, 
-                detail="An error occured while updating loves." + '\n' + str(e) + '\n' + str(article) + link
+                detail="An error occured while updating loves."
             )
 
-        if not result.modified_count:
+        if not recommendation.modified_count:
             raise HTTPException(
                 status_code=404, 
                 detail="No article found for updating 'loved'."
+            )
+
+
+
+        # update total_loves
+        try:
+            article = await db.articles.update_one(
+                    {
+                        'link': link
+                    },
+                    #inc/dec current value
+                    # if already loved, DECrement
+                    # if not loved, INCrement
+                    {'$inc': {'total_loves': -1 if article['loved'] else 1}} 
+                )
+            
+        except Exception as e:
+            raise HTTPException(
+                status_code=500, 
+                detail="An error occured while updating total_loves."
+            )
+
+        if not article.modified_count:
+            raise HTTPException(
+                status_code=404, 
+                detail="No article found for updating 'total_loves'."
             )
         
         return True
@@ -329,7 +347,7 @@ class CRUDArticle(CRUDBase):
         user_id = ObjectId(user_id)
         collection = db[self.collection]
 
-        # increment clicks
+        # increment clicks in user's recommendations
         try:
             result = await collection.update_one(
                     {
@@ -348,6 +366,28 @@ class CRUDArticle(CRUDBase):
             raise HTTPException(
                 status_code=404, 
                 detail="No article found for updating 'clicks'."
+            )
+
+
+
+        # increment total_clicks in articles
+        try:
+            result = await db.articles.update_one(
+                    {
+                        'link': link
+                    },
+                    {'$inc': {'total_clicks': 1}}
+                )
+        except:
+            raise HTTPException(
+                status_code=500, 
+                detail="An error occured while updating total_clicks."
+            )
+
+        if not result.modified_count:
+            raise HTTPException(
+                status_code=404, 
+                detail="No article found for updating 'total_clicks'."
             )
         
         return True
@@ -383,17 +423,7 @@ class CRUDArticle(CRUDBase):
                         'newRoot': '$recommendations'
                     }
                 },
-                # ### REMOVE THESE ATTRIBUTES AND THIS PIPELINE LATER 
-                {
-                    '$project':
-                    {
-                        '_id': 0,
-                        'topic': 0,
-                        'title': 0,
-                        'summary': 0,
-                        
-                    }
-                },
+                
                 # lookup and match article deets
                 {
                     '$lookup':
