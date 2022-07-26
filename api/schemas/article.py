@@ -25,3 +25,11 @@ class ShowArticleInteraction(BaseModel):
 
 class ShowTopics(BaseModel):
     topics: List[str]
+
+class ShowRecommendation(BaseModel):
+    link: str
+    title: str
+    topic: str
+    summary: str
+    loved: bool
+    total_clicks: int

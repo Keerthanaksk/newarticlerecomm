@@ -74,9 +74,9 @@ class CRUDArticle(CRUDBase):
 
 
 
-    async def get_multi(self, db: AsyncIOMotorDatabase, length, topic=None, user_id=None):
+    async def get_multi(self, db: AsyncIOMotorDatabase, length):
         '''
-        Get all articles recommended filtered by topic (optional)
+        Get all articles
         
         Returns a list of dictionary containing:
             id: ObjectId,
@@ -88,73 +88,172 @@ class CRUDArticle(CRUDBase):
             total_clicks: int
         '''
         
-        links = []
+        # links = []
         
-        # get user's reco links
-        if user_id:
-            links = (await self.get_links(db, length=length, user_id=user_id))['links']
+        # # get user's reco links
+        # if user_id:
+        #     links = (await self.get_links(db, length=length, user_id=user_id))['links']
 
         try:
-            recommendations = db[self.collection].aggregate([
-                # unravel all recos
-                {
-                    '$unwind': '$recommendations'
-                },
+            # recommendations = db[self.collection].aggregate([
+            #     # unravel all recos
+            #     {
+            #         '$unwind': '$recommendations'
+            #     },
 
-                # filter by topic, if given
-                {
-                    '$match': {'recommendations.topic': topic} if topic else {}
-                },
+            #     # filter by topic, if given
+            #     {
+            #         '$match': {'recommendations.topic': topic} if topic else {}
+            #     },
 
-                # filter by links sent to user's recos, if given
-                {
-                    '$match': {'recommendations.link': {'$in': links}} if user_id else {}
-                },
+            #     # filter by links sent to user's recos, if given
+            #     {
+            #         '$match': {'recommendations.link': {'$in': links}} if user_id else {}
+            #     },
                 
-                # bring embdded recos to top level
-                {
-                    '$replaceRoot': 
-                    {
-                        'newRoot': '$recommendations'
-                    }
-                },
+            #     # bring embdded recos to top level
+            #     {
+            #         '$replaceRoot': 
+            #         {
+            #             'newRoot': '$recommendations'
+            #         }
+            #     },
                 
-                # reduce only to unique recos
-                {
-                    '$group': 
-                    {
-                        '_id': 
-                        {
-                            'link': '$link',
-                            'topic': '$topic',
-                            'title': '$title',
-                            'summary': '$summary' 
-                        },
-                        'total_loves': 
-                        {
-                            '$sum': 
-                            {
-                                '$cond': ['$loved', 1, 0]
-                            }
-                        },
-                        'total_clicks': {'$sum': '$clicks'}
-                    }
-                },
+            #     # reduce only to unique recos
+            #     {
+            #         '$group': 
+            #         {
+            #             '_id': 
+            #             {
+            #                 'link': '$link',
+            #                 'topic': '$topic',
+            #                 'title': '$title',
+            #                 'summary': '$summary' 
+            #             },
+            #             'total_loves': 
+            #             {
+            #                 '$sum': 
+            #                 {
+            #                     '$cond': ['$loved', 1, 0]
+            #                 }
+            #             },
+            #             'total_clicks': {'$sum': '$clicks'}
+            #         }
+            #     },
 
-                # show specific fields
-                {
-                    '$project':
+            #     # show specific fields
+            #     {
+            #         '$project':
+            #         {
+            #             '_id': 0,
+            #             'link': '$_id.link',
+            #             'topic': '$_id.topic',
+            #             'title': '$_id.title',
+            #             'summary': '$_id.summary',
+            #             'total_loves': 1,
+            #             'total_clicks': 1,
+            #         }
+            #     }
+            # ])
+
+            articles = db.articles.find({})
+
+            articles = await articles.to_list(length)
+
+            return articles
+        
+        except Exception as e:
+            print(e)
+            raise HTTPException(
+                status_code=500, 
+                detail="An error occured while fetching articles."
+            )
+    
+
+    async def get_recommendations(self, db: AsyncIOMotorDatabase, length, user_id, topic=None):
+        '''
+        Get all articles recommended to user. Can be filtered by topic (optional)
+        
+        Returns a list of dictionary containing:
+            id: ObjectId,
+            link: str
+            title: str
+            topic: str
+            summary: str
+            total_clicks: int
+            loved: bool
+        '''
+        
+        try:
+            
+            recommendations = db[self.collection].aggregate(
+                [
+                    # filter only to the user
                     {
-                        '_id': 0,
-                        'link': '$_id.link',
-                        'topic': '$_id.topic',
-                        'title': '$_id.title',
-                        'summary': '$_id.summary',
-                        'total_loves': 1,
-                        'total_clicks': 1,
+                        '$match': {'_id': ObjectId(user_id)}
+                    },
+                    # unwind
+                    {
+                        '$unwind': '$recommendations'
+                    },
+                    # bring to top level
+                    {
+                        '$replaceRoot': 
+                        {
+                            'newRoot': '$recommendations'
+                        }
+                    },
+                    # ### REMOVE THESE ATTRIBUTES AND THIS PIPELINE LATER 
+                    {
+                        '$project':
+                        {
+                            '_id': 0,
+                            'topic': 0,
+                            'title': 0,
+                            'summary': 0,
+                            
+                        }
+                    },
+                    # lookup and match article deets
+                    {
+                        '$lookup':
+                        {
+                            'from': 'articles',
+                            'localField': 'link',
+                            'foreignField': 'link',
+                            'as': 'details'
+                        }
+                    },
+                    {
+                        '$replaceRoot': 
+                        { 
+                            'newRoot': 
+                            { 
+                                '$mergeObjects': 
+                                [ 
+                                    { 
+                                        '$arrayElemAt': [ "$details", 0 ] 
+                                    }, 
+                                    "$$ROOT" 
+                                ] 
+                            } 
+                        }
+                    },
+                    # include in projection the total_clicks and loved
+                    # remove 'details' field
+                    {
+                        '$project':
+                        {
+                            '_id': 0,
+                            'details': 0,
+                            'total_loves': 0,
+                            'clicks': 0
+                            # 'total_clicks': 1,
+                            # 'loved': 1,
+                        }
                     }
-                }
-            ])
+                ]
+            )
 
             recommendations = await recommendations.to_list(length)
 
@@ -164,9 +263,9 @@ class CRUDArticle(CRUDBase):
             print(e)
             raise HTTPException(
                 status_code=500, 
-                detail="An error occured while fetching articles."
+                detail="An error occured while fetching recommendations."
             )
-        
+
 
 
     async def love_by_link(

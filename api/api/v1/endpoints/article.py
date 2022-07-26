@@ -1,8 +1,9 @@
+from pprint import pprint
 from typing import List, Union
 from bson import ObjectId
 
 from api.db.mongodb import get_database
-from api.schemas import ShowArticle, ShowUser
+from api.schemas import ShowArticle, ShowUser, ShowRecommendation
 from api import crud
 from api.core import jwt
 
@@ -17,23 +18,42 @@ router = APIRouter()
 
 @router.get("/all", response_model=List[ShowArticle])
 async def get_articles(
-    topic: Union[str, None] = None,
     limit: int = 100,
     db: AsyncIOMotorDatabase = Depends(get_database),
-    Authorize: AuthJWT = Depends()
 ):
     '''
-        Return articles 
+        Return all articles and total interactions
+
+        Will not require loggin in anymore
     '''
-
-    Authorize.jwt_optional()
-
-    user_id = Authorize.get_jwt_subject()
     
-    articles = await crud.article.get_multi(db, length=limit, topic=topic, user_id=user_id)
+    articles = await crud.article.get_multi(db, length=limit)
     
     return articles
 
+@router.get("/recommendations", response_model=List[ShowRecommendation])
+async def get_recommendations(
+    topic: Union[str, None] = None,
+    limit: int = 100,
+    db: AsyncIOMotorDatabase = Depends(get_database),
+    current_user: ShowUser = Depends(jwt.current_user)
+):
+    '''
+        Return recommendations for the user
+
+        Difference with /all is that this will also return
+        loved -> Boolean
+        total_clicks -> Int
+    '''
+
+    recommendations = await crud.article.get_recommendations(
+        db, 
+        length=limit, 
+        topic=topic, 
+        user_id=current_user['_id']
+    )
+    
+    return recommendations
 
 
 @router.post("/love")

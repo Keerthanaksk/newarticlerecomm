@@ -1,7 +1,8 @@
 from api.schemas.article import (
     ShowArticle,
     ShowArticleInteraction,
-    ShowTopics
+    ShowTopics,
+    ShowRecommendation
 )
 
 from api.schemas.user import (
