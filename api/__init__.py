@@ -2,9 +2,12 @@ import os
 
 from api.core.config import settings
 from api.db.mongodb_utils import connect_to_mongo, close_mongo_connection
+from api.db.recommendations import get_recommendations
 from api.api.v1.api import api_router
 
 from starlette.middleware.cors import CORSMiddleware
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 
 from fastapi_jwt_auth import AuthJWT
@@ -30,13 +33,23 @@ def register_cors(app: FastAPI):
     )
 
 
-
 def register_fastapi_jwt_auth(app: FastAPI):
     @AuthJWT.load_config
     def get_config():
         return settings
 
-
+def register_scheduler():
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(
+        get_recommendations, 
+        'interval',
+        seconds=2
+        # 'cron', 
+        # hour=21, 
+        # minute=0, 
+        # timezone='Asia/Manila'
+    )
+    scheduler.start()
 
 def create_app():
     app = FastAPI(
@@ -48,10 +61,12 @@ def create_app():
     app.include_router(api_router)
 
     app.add_event_handler("startup", connect_to_mongo)
+    # app.add_event_handler("startup", register_scheduler)
     app.add_event_handler("shutdown", close_mongo_connection)
 
     register_cors(app)
     register_fastapi_jwt_auth(app)
+    # register_scheduler()
 
     return app
 
