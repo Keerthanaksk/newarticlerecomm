@@ -1,5 +1,6 @@
 from typing import List, Optional
 import os
+import pandas as pd
 
 from api import crud
 from api.core import jwt, config
@@ -7,6 +8,8 @@ from api.schemas import ShowUser, UserCreate
 from api.db.mongodb import get_database
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
+import io
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
@@ -20,6 +23,26 @@ async def get_users(
 ):
     users = await crud.user.get_multi(db, length=limit)
     return users
+
+# @router.get('/export')
+# async def get_users(
+#     limit: int = 100,
+#     db: AsyncIOMotorDatabase = Depends(get_database)
+# ):
+#   # users = await crud.user.get_multi(db, length=limit)
+#     df = pd.DataFrame({'A': 1, 'B': 2}, index=[0])
+#     print(df)
+#     stream = io.StringIO()
+
+#     df.to_csv(stream)
+
+#     response = StreamingResponse(iter([stream.getvalue()]),
+#                         media_type="text/csv"
+#     )
+
+#     response.headers["Content-Disposition"] = "attachment; filename=export.csv"
+
+#     return response
 
 @router.get('/id/{id}', response_model=ShowUser)
 async def get_user_by_id(

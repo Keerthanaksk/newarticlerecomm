@@ -21,7 +21,8 @@
                 :link="article.link"
                 :title="article.title"
                 :summary="article.summary"
-                :loveCounts="article.total_loves"
+                :clickCounts="article.total_clicks"
+                :isLoved="article.loved"
             />
         </div>
         
@@ -47,7 +48,7 @@
         watch: {
             async topic(newTopic) {
                 await axios.get(
-                    this.$store.state.API_BASE_URL + 'article/all',
+                    this.$store.state.API_BASE_URL + 'article/recommendations',
                     {
                         params: { topic: newTopic},
                         withCredentials: true,

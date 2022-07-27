@@ -7,13 +7,18 @@
             <div class="d-flex">
                 
                 <div class="d-flex flex-column align-items-center align-self-center">
-                    <i class="bi bi-heart-fill text-danger" @click="love"></i>
-                    <!-- <span>{{this.loves}}</span> -->
+                    <i :class="'bi bi-heart-fill ' + (this.loved ? 'text-danger' : '')" @click="love"></i>
+                    <span></span>
+                    <!-- <span>{{this.loved}}</span> -->
                 </div>
                 <div class="ms-4">
                     <!-- <h5 class="card-title">{{this.title}}</h5> -->
                     <p class="card-text">{{this.summary}}</p>
-                    <a :href="this.link" target="_blank" class="small text-muted align-self-end" @click="linkClick">Read more</a>
+                    <div class="d-flex justify-content-between">
+                        <a :href="this.link" target="_blank" class="small text-muted align-self-end" @click="linkClick">Click to read more</a>
+                        <span v-if="this.clicks" class="small text-muted"> <b>{{this.clicks}}</b> user(s) have clicked this article!</span>
+
+                    </div>
                 </div>
             </div>
                     
@@ -41,12 +46,12 @@
             title: String,
             link: String,
             summary: String,
-            loveCounts: Number,
+            clickCounts: Number,
             isLoved: Boolean
         },
 
         created() {
-            this.loves = this.loveCounts
+            this.clicks = this.clickCounts
             this.loved = this.isLoved
         },
 
@@ -99,6 +104,7 @@
                 })
                 .catch(res => console.log(res))
                 
+                this.loved = !this.loved
             }
         },
     }

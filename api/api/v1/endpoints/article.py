@@ -1,6 +1,8 @@
 from pprint import pprint
 from typing import List, Union
 from bson import ObjectId
+import pandas as pd
+import io
 
 from api.db.mongodb import get_database
 from api.schemas import ShowArticle, ShowUser, ShowRecommendation
@@ -8,6 +10,7 @@ from api import crud
 from api.core import jwt
 
 from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
 
 from fastapi_jwt_auth import AuthJWT
 from api.schemas.article import ShowTopics
@@ -54,6 +57,28 @@ async def get_recommendations(
     )
     
     return recommendations
+
+@router.get('/export')
+async def get_articles(
+    limit: int = 100,
+    db: AsyncIOMotorDatabase = Depends(get_database)
+):
+    
+    articles = await crud.article.get_multi(db, length=limit)
+    df = pd.DataFrame.from_records(articles)
+    df.drop(["_id"], axis=1, inplace=True)
+    
+    stream = io.StringIO()
+
+    df.to_csv(stream)
+
+    response = StreamingResponse(iter([stream.getvalue()]),
+                        media_type="text/csv"
+    )
+
+    response.headers["Content-Disposition"] = "attachment; filename=articles.csv"
+
+    return response
 
 
 @router.post("/love")
