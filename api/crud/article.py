@@ -214,38 +214,52 @@ class CRUDArticle(CRUDBase):
                             'as': 'details'
                         }
                     },
-                    # bring deets up 
                     {
-                        '$replaceRoot': 
-                        { 
-                            'newRoot': 
-                            { 
-                                '$mergeObjects': 
-                                [ 
-                                    { 
-                                        '$arrayElemAt': [ "$details", 0 ] 
-                                    }, 
-                                    "$$ROOT" 
-                                ] 
-                            } 
-                        }
+                        "$unwind": "$details"
                     },
                     {
-                        '$match': { 'topic': topic } if topic else {}
+                        '$match': { 'details.topic': topic } if topic else {}
                     },
-                    # include in projection the total_clicks and loved
-                    # remove 'details' field
                     {
-                        '$project':
+                        "$project":
                         {
-                            '_id': 0,
-                            'details': 0,
-                            'total_loves': 0,
-                            'clicks': 0
-                            # 'total_clicks': 1,
-                            # 'loved': 1,
+                            "link": "$details.link",
+                            "title": "$details.title",
+                            "topic": "$details.topic",
+                            "summary": "$details.summary",
+                            "loved": 1,
+                            "total_clicks": "$details.total_clicks"
                         }
                     }
+                    # # bring deets up 
+                    # {
+                    #     '$replaceRoot': 
+                    #     { 
+                    #         'newRoot': 
+                    #         { 
+                    #             '$mergeObjects': 
+                    #             [ 
+                    #                 { 
+                    #                     '$arrayElemAt': [ "$details", 0 ] 
+                    #                 }, 
+                    #                 "$$ROOT" 
+                    #             ] 
+                    #         } 
+                    #     }
+                    # },
+                    # # include in projection the total_clicks and loved
+                    # # remove 'details' field
+                    # {
+                    #     '$project':
+                    #     {
+                    #         '_id': 0,
+                    #         'details': 0,
+                    #         'total_loves': 0,
+                    #         'clicks': 0
+                    #         # 'total_clicks': 1,
+                    #         # 'loved': 1,
+                    #     }
+                    # }
                 ]
             )
 
