@@ -43,7 +43,7 @@ def register_scheduler():
     scheduler.add_job(
         get_recommendations, 
         'interval',
-        seconds=2
+        minutes=1
         # 'cron', 
         # hour=21, 
         # minute=0, 
@@ -61,12 +61,11 @@ def create_app():
     app.include_router(api_router)
 
     app.add_event_handler("startup", connect_to_mongo)
-    # app.add_event_handler("startup", register_scheduler)
+    app.add_event_handler("startup", register_scheduler)
     app.add_event_handler("shutdown", close_mongo_connection)
 
     register_cors(app)
     register_fastapi_jwt_auth(app)
-    # register_scheduler()
 
     return app
 
