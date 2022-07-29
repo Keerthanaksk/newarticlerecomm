@@ -8,17 +8,19 @@
                         <h1 class="card-title display-6 text-center fw-bolder">Welcome Back!</h1>
                         <h6 class="card-subtitle mb-4 text-muted text-center">Intelligent Newsletter by UnionBank and Aboitiz</h6>
                         
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" v-model="email">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <input type="password" class="form-control" v-model="password">
-                        </div>
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-warning text-light fw-bolder" type="button" @click="login">Login account</button>
-                        </div>
+                        <form @submit.prevent="login">
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" v-model="email">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <input type="password" class="form-control" v-model="password">
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-warning text-light fw-bolder" type="submit">Login account</button>
+                            </div>
+                        </form>
                         
                     </div>
                 </div>
