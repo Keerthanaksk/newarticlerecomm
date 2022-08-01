@@ -8,7 +8,7 @@
                         <h1 class="card-title display-6 text-center fw-bolder">Welcome Back!</h1>
                         <h6 class="card-subtitle mb-4 text-muted text-center">Intelligent Newsletter by UnionBank and Aboitiz</h6>
                         
-                        <form @submit.prevent="login">
+                        <form method="POST" @submit.prevent="login">
                             <div class="mb-3">
                                 <label class="form-label">Email</label>
                                 <input type="email" class="form-control" v-model="email">
@@ -32,7 +32,8 @@
 
 <script>
     import axios from 'axios'
-    
+    import qs from 'qs';
+
     export default {
         name: 'Login',
         data() {
@@ -44,16 +45,17 @@
 
         methods: {
             async login() {
-                var bodyFormData = new FormData();
-                bodyFormData.append('username', this.email);
-                bodyFormData.append('password', this.password);
-                
+                // var bodyFormData = new FormData();
+                // bodyFormData.append('username', this.email);
+                // bodyFormData.append('password', this.password);
+                const data = {'username': this.email, 'password': this.password}
+
                 await axios({
                     method: 'post',
                     url: this.$store.state.API_BASE_URL + 'auth/login',
-                    data: bodyFormData,
+                    data: qs.stringify(data),
                     withCredentials: true,
-                    headers: {'Content-Type': 'multipart/form-data'}
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
                 })
                 .then( res => {
                         

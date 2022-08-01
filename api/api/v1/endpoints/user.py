@@ -1,3 +1,4 @@
+from pprint import pprint
 from typing import List, Optional
 import os
 import pandas as pd
@@ -24,25 +25,44 @@ async def get_users(
     users = await crud.user.get_multi(db, length=limit)
     return users
 
-# @router.get('/export')
-# async def get_users(
-#     limit: int = 100,
-#     db: AsyncIOMotorDatabase = Depends(get_database)
-# ):
-#   # users = await crud.user.get_multi(db, length=limit)
-#     df = pd.DataFrame({'A': 1, 'B': 2}, index=[0])
-#     print(df)
-#     stream = io.StringIO()
+@router.get('/export')
+async def get_users(
+    limit: int = 100,
+    db: AsyncIOMotorDatabase = Depends(get_database)
+):
+    recos = db.recommendationHistory.aggregate(
+        [
+            {
+                '$unwind': '$recommendations'
+            },
+            {
+                '$project':
+                {
+                    '_id': 1,
+                    'email': 1,
+                    'link': '$recommendations.link',
+                    'clicks': '$recommendations.clicks',
+                    'loved': '$recommendations.loved',
+                    'date_recommended': '$recommendations.date_recommended'
+                }
+            }
+        ]
+    )
+    recos = await recos.to_list(limit)
+    
+    df = pd.DataFrame.from_records(recos)
+    
+    stream = io.StringIO()
 
-#     df.to_csv(stream)
+    df.to_csv(stream)
 
-#     response = StreamingResponse(iter([stream.getvalue()]),
-#                         media_type="text/csv"
-#     )
+    response = StreamingResponse(iter([stream.getvalue()]),
+                        media_type="text/csv"
+    )
 
-#     response.headers["Content-Disposition"] = "attachment; filename=export.csv"
+    response.headers["Content-Disposition"] = "attachment; filename=export.csv"
 
-#     return response
+    return response
 
 @router.get('/id/{id}', response_model=ShowUser)
 async def get_user_by_id(

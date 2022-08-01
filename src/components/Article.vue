@@ -7,7 +7,7 @@
             <div class="d-flex">
                 
                 <div class="d-flex flex-column align-items-center align-self-center">
-                    <i :class="'bi bi-heart-fill ' + (this.loved ? 'text-danger' : '')" @click="love"></i>
+                    <i :class="'bi ' + (this.loved ? 'bi-heart-fill text-danger' : 'bi-heart')" @click="love"></i>
                     <span></span>
                     <!-- <span>{{this.loved}}</span> -->
                 </div>
