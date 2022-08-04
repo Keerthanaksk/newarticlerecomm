@@ -67,10 +67,23 @@ async def get_recommendations():
         # Recommend only to those w/ past recommendations (old users)
         if user['recommendations']:
             recos = await get_random_recommendations(db)
-            result = await db.users.update_one(
-                {'email': user['email']}, 
-                {'$set': {'recommendations': recos}}
-            )
+            
+            data = {
+                'email': user['email'],
+                'password': user['password'],
+                'recommendations': recos
+            }
+
+            # temporary fix since cosmos db is not allowing array updates
+            
+            await db.users.delete_one({'email': user['email']}) # delete previous user entry
+            await db.users.insert_one(data) # insert new one with new recommendations
+
+            # this doest work with cosmos db
+            # await db.users.update_one(
+            #     {'email': user['email']}, 
+            #     {'$set': {'recommendations': recos}}
+            # )
     
     print('Recommended new articles!')
     
