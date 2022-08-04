@@ -67,7 +67,7 @@ async def get_recommendations():
         # Recommend only to those w/ past recommendations (old users)
         if user['recommendations']:
             recos = await get_random_recommendations(db)
-            await db.users.update_one(
+            result = await db.users.update_one(
                 {'email': user['email']}, 
                 {'$set': {'recommendations': recos}}
             )
