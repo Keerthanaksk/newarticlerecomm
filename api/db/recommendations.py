@@ -64,7 +64,8 @@ async def get_recommendations():
     
     # fetch 15 random articles as new recommendations
     for user in users:
-        if user['email'] != 'kwang@ya.com':
+        # Recommend only to those w/ past recommendations (old users)
+        if user['recommendations']:
             recos = await get_random_recommendations(db)
             await db.users.update_one(
                 {'email': user['email']}, 
