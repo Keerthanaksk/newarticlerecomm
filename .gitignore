@@ -16,7 +16,8 @@ todo_backend.md
 todo_frontend.md
 
 # poetry
-pyproject.toml
+# pyproject.toml
+poetry.lock
 
 # local env files
 .env.local
