@@ -59,7 +59,7 @@ async def get_recommendations(
     return recommendations
 
 @router.get('/export')
-async def get_articles(
+async def export_articles(
     limit: int = 100,
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):

@@ -34,6 +34,11 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 60 # 1 hour
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 1 week
 
+    TEST_ENV: str = os.environ.get('TEST_ENV')
+
+    class Config:
+        env_file = ".env"
+
 class DevelopmentSettings(Settings):
     # can be sent through HTTP
     authjwt_cookie_secure: bool = False

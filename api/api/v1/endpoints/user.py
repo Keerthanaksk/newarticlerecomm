@@ -26,7 +26,7 @@ async def get_users(
     return users
 
 @router.get('/export')
-async def get_users(
+async def export_users(
     limit: int = 100,
     db: AsyncIOMotorDatabase = Depends(get_database)
 ):
