@@ -20,4 +20,4 @@ async def test(
 	Print an env here
 	"""
 
-	return {'TEST_ENV': settings.TEST_ENV}
+	return {'TEST_ENV': settings.SECRET_KEY}

@@ -1,12 +1,15 @@
 import os, secrets
 # from dotenv import load_dotenv
-from pydantic import BaseSettings
+from pydantic import BaseSettings, BaseModel
 
 # env_path = '.env'
 # load_dotenv(dotenv_path=env_path)
 # load_dotenv()
 
-class Settings(BaseSettings):
+class Settings(BaseModel):
+    class Config:
+        env_file = ".env"
+    
     PROJECT_NAME: str = "Intelligent Newsletter"
     PROJECT_DESC: str = """UnionBank articles recommender prototype"""
     PROJECT_VERSION: str = "1.0.0"
@@ -15,8 +18,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = os.environ.get('SECRET_KEY', 'secret')
     
     # mongodb source
-    MONGO_URL: str = os.environ.get('MONGO_URL', 'mongodb://localhost:27017/')
-    
+    MONGO_URL: str = os.environ.get('MONGO_URL')
     # database to use
     MONGO_DB: str = os.environ.get('MONGO_DB', 'unionbank')
 
@@ -35,9 +37,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 1 week
 
     TEST_ENV: str = os.environ.get('TEST_ENV')
-
-    class Config:
-        env_file = ".env"
+    
 
 class DevelopmentSettings(Settings):
     # can be sent through HTTP

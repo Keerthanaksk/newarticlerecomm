@@ -61,7 +61,7 @@
 
     data() {
       return {
-        topic: ""
+        topic: "",
       }
     }
   }

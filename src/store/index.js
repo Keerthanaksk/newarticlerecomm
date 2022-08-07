@@ -6,7 +6,7 @@ export default createStore({
         return {
             email: cookie.get('email'),
             // backend api base url
-            API_BASE_URL: process.env.VUE_APP_ENV == 'prod' ? process.env.VUE_APP_API_BASE_URL : 'http://localhost:8000/'
+            API_BASE_URL: process.env.VUE_APP_API_BASE_URL
         }
     },
     mutations: {
